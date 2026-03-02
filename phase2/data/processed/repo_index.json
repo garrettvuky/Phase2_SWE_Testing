@@ -1,0 +1,14 @@
+{
+  "manifest_path": "C:\\Users\\garre\\Desktop\\P2\\New folder\\phase2\\data\\processed\\manifest.jsonl",
+  "repos": {
+    "13899": {
+      "current_sha": "669b302c106551287cf2352101f3e131bb858015",
+      "last_updated_utc": "2026-03-02T01:58:07Z",
+      "path": "C:\\Users\\garre\\Desktop\\P2\\New folder\\repos\\13899",
+      "repo_url": "https://github.com/mheath/adbcj"
+    }
+  },
+  "repos_root": "C:\\Users\\garre\\Desktop\\P2\\New folder\\repos",
+  "updated_at_utc": "2026-03-02T01:58:07Z",
+  "workdir": "C:\\Users\\garre\\Desktop\\P2\\New folder"
+}

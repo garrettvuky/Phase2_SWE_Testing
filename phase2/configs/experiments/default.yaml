@@ -1,0 +1,22 @@
+dataset:
+  urls:
+    - "https://anonymous.4open.science/r/classes2test/dataset/13899/13899_8.json"
+  timeout_seconds: 30
+
+rq2:
+  top_k: 3
+
+sync:
+  regenerative:
+    max_iterations: 3
+  healing:
+    max_iterations: 5
+    reassert_command: ""
+
+rq3:
+  timeout_seconds: 3600
+
+tools:
+  evosuite:
+    jar_path: ""
+    download_url: ""

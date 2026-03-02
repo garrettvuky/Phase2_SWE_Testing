@@ -1,0 +1,93 @@
+2026-03-01 20:53:47,597 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 20:53:47,597 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 20:53:47,616 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 20:53:47,616 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 20:53:48,306 | INFO | phase2.dataset | Downloaded dataset https://anonymous.4open.science/r/classes2test/dataset/13899/13899_8.json -> C:\Users\garre\Desktop\P2\New folder\phase2\data\raw\classes2test\cb026cc1cb48_13899_8.json
+2026-03-01 20:53:55,066 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 20:53:55,066 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 20:54:15,239 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 20:54:15,239 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 20:54:15,240 | INFO | phase2.dataset | Using cached dataset for https://anonymous.4open.science/r/classes2test/dataset/13899/13899_8.json
+2026-03-01 20:54:25,321 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 20:54:25,321 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 20:57:49,168 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 20:57:49,168 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 20:57:49,169 | INFO | phase2.repo | Cloning https://github.com/mheath/adbcj into C:\Users\garre\Desktop\P2\New folder\repos\13899
+2026-03-01 20:57:58,755 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 20:57:58,755 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 20:57:58,756 | INFO | phase2.repo | Reusing existing clone at C:\Users\garre\Desktop\P2\New folder\repos\13899
+2026-03-01 20:58:04,985 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 20:58:04,985 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 20:58:04,986 | INFO | phase2.repo | Reusing existing clone at C:\Users\garre\Desktop\P2\New folder\repos\13899
+2026-03-01 21:01:29,086 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 21:01:29,087 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 21:01:42,723 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 21:01:42,724 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 21:02:00,625 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 21:02:00,625 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 21:02:30,303 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 21:02:30,303 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 21:04:37,299 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 21:04:37,299 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 21:04:37,300 | INFO | phase2.test_runner | Running tests for repo_id=13899 using maven (system)
+2026-03-01 21:05:27,625 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 21:05:27,625 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 21:05:49,712 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 21:05:49,712 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 21:05:49,714 | INFO | phase2.test_runner | Running tests for repo_id=13899 using maven (system)
+2026-03-01 21:06:45,851 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 21:06:45,851 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 21:06:45,853 | INFO | phase2.test_runner | Running tests for repo_id=13899 using maven (system)
+2026-03-01 21:13:28,439 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 21:13:28,439 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 21:17:11,833 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 21:17:11,833 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 21:20:02,325 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 21:20:02,325 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 21:20:02,329 | INFO | phase2.pipeline | Layout ready. Created 0 directories.
+2026-03-01 21:24:20,188 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 21:24:20,189 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 21:24:45,169 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 21:24:45,169 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 21:28:24,660 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 21:28:24,660 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 21:35:19,737 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 21:35:19,738 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 21:36:50,942 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 21:36:50,942 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 21:42:09,617 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 21:42:09,618 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 21:48:20,953 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 21:48:20,954 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 21:49:04,945 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 21:49:04,945 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 21:49:22,565 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 21:49:22,566 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 21:50:14,140 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 21:50:14,140 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 22:02:16,896 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 22:02:16,897 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 22:03:06,378 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 22:03:06,378 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 22:07:47,273 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 22:07:47,273 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 22:07:58,893 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 22:07:58,893 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 22:07:58,991 | INFO | phase2.pipeline | RQ1 evaluation completed: {'status': 'ok', 'output_csv': 'C:\\Users\\garre\\Desktop\\P2\\New folder\\artifacts\\rq1_summary.csv', 'per_case_dir': 'C:\\Users\\garre\\Desktop\\P2\\New folder\\artifacts\\rq1_cases', 'rows_written': 2, 'approach_pass_rates': {'healing': 0.0, 'regen': None}, 'with_ast_similarity': False}
+2026-03-01 22:09:02,044 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 22:09:02,044 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 22:10:02,647 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 22:10:02,647 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 22:10:29,006 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 22:10:29,007 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 22:17:17,350 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 22:17:17,350 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 22:17:34,127 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 22:17:34,127 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 22:17:37,666 | INFO | phase2.pipeline | RQ3 evaluation completed: {'status': 'ok', 'output_csv': 'C:\\Users\\garre\\Desktop\\P2\\New folder\\artifacts\\rq3_quality.csv', 'per_case_dir': 'C:\\Users\\garre\\Desktop\\P2\\New folder\\artifacts\\rq3_cases', 'rows_written': 3, 'approach_counts': {'human': {'evaluated': 1}, 'healing': {'evaluated': 1}, 'regen': {'evaluated': 0}}, 'timeout_seconds': 3600}
+2026-03-01 22:23:11,455 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 22:23:11,455 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 22:33:52,677 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 22:33:52,677 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
+2026-03-01 22:34:46,600 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\phase2\configs\experiments\default.yaml
+2026-03-01 22:34:46,600 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\phase2\artifacts\logs\phase2.log
