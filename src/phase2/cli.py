@@ -448,7 +448,8 @@ def build_parser() -> argparse.ArgumentParser:
     _add_repo_common_args(repo_checkout)
     repo_checkout.add_argument(
         "--commit",
-        required=True,
+        required=False,
+        default="",
         help="Commit-ish to checkout for every repository (e.g., SHA, tag, branch).",
     )
 

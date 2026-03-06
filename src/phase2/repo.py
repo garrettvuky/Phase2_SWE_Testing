@@ -208,18 +208,25 @@ def clone_from_manifest(
     states: list[dict[str, Any]] = []
     for repo_id, repo_url in targets:
         repo_path = resolved_repos_root / repo_id
-        reused = _ensure_clone(repo_url=repo_url, repo_path=repo_path)
-        _fetch_all_refs(repo_path=repo_path)
-        sha = _current_sha(repo_path=repo_path)
-        states.append(
-            {
-                "repo_id": repo_id,
-                "repo_url": repo_url,
-                "path": str(repo_path),
-                "current_sha": sha,
-                "reused_existing_clone": reused,
-            }
-        )
+        
+        # --- Fault-Tolerant Cloning Block ---
+        try:
+            reused = _ensure_clone(repo_url=repo_url, repo_path=repo_path)
+            _fetch_all_refs(repo_path=repo_path)
+            sha = _current_sha(repo_path=repo_path)
+            states.append(
+                {
+                    "repo_id": repo_id,
+                    "repo_url": repo_url,
+                    "path": str(repo_path),
+                    "current_sha": sha,
+                    "reused_existing_clone": reused,
+                }
+            )
+        except subprocess.CalledProcessError as e:
+            LOGGER.warning("Skipping dead repository %s. Git error code: %s", repo_url, e.returncode)
+            continue
+        # ------------------------------------
 
     updated_index = _update_repo_index(
         workdir=workdir,
@@ -233,38 +240,60 @@ def clone_from_manifest(
 
 def checkout_from_manifest(
     workdir: Path,
-    commit: str,
+    commit: str = "", # Optional, we will pull it from the manifest record
     manifest_path: Path = DEFAULT_MANIFEST_REL,
     repos_root: Path = DEFAULT_REPOS_ROOT_REL,
     index_path: Path = REPO_INDEX_REL,
 ) -> tuple[Path, list[dict[str, Any]]]:
-    if not commit.strip():
-        raise ValueError("Commit cannot be empty.")
-
     resolved_manifest = _resolve_path(workdir, manifest_path)
     resolved_repos_root = _resolve_path(workdir, repos_root)
     resolved_index_path = _resolve_path(workdir, index_path)
 
     records = _load_manifest_records(resolved_manifest)
+    
+    # We map repo_id to its specific base_commit from the manifest
+    target_commits = {}
+    for record in records:
+        repo_id = _repo_id_from_record(record)
+        base_commit = record.get("base_commit", "")
+        if base_commit:
+            target_commits[repo_id] = base_commit
+
     targets = _repo_targets(records)
 
     states: list[dict[str, Any]] = []
     for repo_id, repo_url in targets:
         repo_path = resolved_repos_root / repo_id
-        reused = _ensure_clone(repo_url=repo_url, repo_path=repo_path)
-        _fetch_all_refs(repo_path=repo_path)
-        _run_git(["checkout", "--detach", commit], cwd=repo_path)
-        sha = _current_sha(repo_path=repo_path)
-        states.append(
-            {
-                "repo_id": repo_id,
-                "repo_url": repo_url,
-                "path": str(repo_path),
-                "current_sha": sha,
-                "checked_out": commit,
-                "reused_existing_clone": reused,
-            }
-        )
+        
+        # Determine the target commit for this specific repository
+        target_commit = target_commits.get(repo_id, commit)
+        
+        if not target_commit:
+             LOGGER.warning("Skipping checkout for %s. No commit provided.", repo_url)
+             continue
+
+        if not repo_path.exists() or not (repo_path / ".git").exists():
+            LOGGER.warning("Skipping checkout for %s. Repository clone not found.", repo_url)
+            continue
+            
+        try:
+            # We don't try to clone again here, just checkout the state
+            _fetch_all_refs(repo_path=repo_path)
+            _run_git(["checkout", "--detach", target_commit], cwd=repo_path)
+            sha = _current_sha(repo_path=repo_path)
+            states.append(
+                {
+                    "repo_id": repo_id,
+                    "repo_url": repo_url,
+                    "path": str(repo_path),
+                    "current_sha": sha,
+                    "checked_out": target_commit,
+                    "reused_existing_clone": True,
+                }
+            )
+        except subprocess.CalledProcessError as e:
+            LOGGER.warning("Skipping broken checkout for %s at %s. Git error code: %s", repo_url, target_commit, e.returncode)
+            continue
 
     updated_index = _update_repo_index(
         workdir=workdir,
