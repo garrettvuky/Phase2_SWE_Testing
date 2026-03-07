@@ -6,6 +6,9 @@ import shlex
 import subprocess
 from pathlib import Path
 from typing import Any
+import logging
+
+LOGGER = logging.getLogger(__name__)
 
 from phase2.cases import (
     DEFAULT_INDEX_REL,
@@ -30,15 +33,21 @@ def _resolve_path(base: Path, value: Path) -> Path:
     return candidate.resolve()
 
 
-def _run_git(repo_path: Path, args: list[str], check: bool = True) -> str:
-    completed = subprocess.run(
+def _run_git(repo_path: Path, args: list[str], check: bool = True):
+    # Ensure any previous Java/Maven locks are released (The "Hammer")
+    # This is a bit slow, but saves the run on OneDrive/Windows
+    import subprocess
+    
+    result = subprocess.run(
         ["git", *args],
-        cwd=str(repo_path),
-        text=True,
+        cwd=repo_path,
         capture_output=True,
-        check=check,
+        text=True, # This ensures e.stderr is a string, not bytes
+        encoding='utf-8',
+        errors='replace',
+        check=check
     )
-    return completed.stdout.strip()
+    return result.stdout.strip()
 
 
 def _load_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -311,7 +320,23 @@ def mine_change_cases(
         build_command_text = " ".join(shlex.quote(token) for token in build_command_tokens)
 
         try:
-            _run_git(repo_path, ["checkout", "--detach", base_commit])
+            # --- New: Global Git Protection ---
+            def robust_git_prep(p):
+                try:
+                    _run_git(p, ["reset", "--hard", "HEAD"])
+                    _run_git(p, ["clean", "-fd"])
+                except subprocess.CalledProcessError as e:
+                    LOGGER.warning(f"Initial cleanup failed for {repo_id}, trying to proceed anyway...")
+
+            robust_git_prep(repo_path)
+            
+            try:
+                _run_git(repo_path, ["checkout", "--detach", base_commit])
+            except subprocess.CalledProcessError as e:
+                error_msg = e.stderr.decode(errors='replace') if isinstance(e.stderr, bytes) else str(e)
+                LOGGER.error(f"Abandoning repo {repo_id}: {error_msg}")
+                continue
+
             if run_tests:
                 baseline_test_result = run_repo_tests(
                     workdir=workdir,
@@ -330,7 +355,18 @@ def mine_change_cases(
             per_record: list[dict[str, Any]] = []
 
             for modified_commit in commits:
-                _run_git(repo_path, ["checkout", "--detach", modified_commit])
+                # Wrap EVERYTHING inside the commit loop
+                try:
+                    robust_git_prep(repo_path)
+                    _run_git(repo_path, ["checkout", "--detach", modified_commit])
+
+                    # --- ARTIFICIAL BREAKAGE STEP ---
+                    # Keep new source logic, but revert the test to the old version.
+                    # This ensures the test fails, giving the AI a repair task.
+                    _run_git(repo_path, ["checkout", base_commit, "--", test_file_path])
+                    # --------------------------------
+                except subprocess.CalledProcessError:
+                    continue 
 
                 touches_method_region = _commit_touches_method_region(
                     repo_path=repo_path,
@@ -338,6 +374,7 @@ def mine_change_cases(
                     focal_file_path=focal_file_path,
                     mapped_focal_method=mapped_focal_method,
                 )
+
                 human_update_commit, human_update_distance = _nearby_test_update(
                     repo_path=repo_path,
                     candidate_commit=modified_commit,
@@ -447,6 +484,7 @@ def mine_change_cases(
                 case_obj, case_path = save_case(case_payload, workdir=workdir, index_rel=DEFAULT_INDEX_REL)
                 selected_case_ids.append(case_obj.case_id)
                 selected_case_paths.append(str(case_path))
+        
         finally:
             _run_git(repo_path, ["checkout", "--detach", original_sha], check=False)
 
@@ -460,3 +498,4 @@ def mine_change_cases(
         "selected_case_ids": selected_case_ids,
         "selected_case_paths": selected_case_paths,
     }
+

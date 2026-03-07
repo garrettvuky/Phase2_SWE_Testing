@@ -1,7 +1,8 @@
-dataset:
-  urls:
-    - "https://anonymous.4open.science/r/classes2test/dataset/13899/13899_8.json"
-  timeout_seconds: 30
+# Use a relative path so it automatically finds the 'repos' folder 
+# right next to where you run the command
+repos_root: "repos"
+
+dataset: "phase2/data/processed/manifest.jsonl"
 
 rq2:
   top_k: 3

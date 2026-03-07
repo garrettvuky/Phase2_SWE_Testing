@@ -23,16 +23,18 @@ def _resolve_path(base: Path, value: Path) -> Path:
     return candidate.resolve()
 
 
-def _run_git(args: list[str], cwd: Path) -> str:
-    command = ["git", *args]
-    completed = subprocess.run(
+def _run_git(args, cwd):
+    # Add "--no-pager" as the very first argument after "git"
+    command = ["git", "--no-pager"] + args
+    
+    result = subprocess.run(
         command,
-        cwd=str(cwd),
-        check=True,
-        text=True,
+        cwd=cwd,
         capture_output=True,
+        text=True,
+        check=False
     )
-    return completed.stdout.strip()
+    return result
 
 
 def _load_manifest_records(manifest_path: Path) -> list[dict[str, Any]]:
