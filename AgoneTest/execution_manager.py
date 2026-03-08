@@ -1,10 +1,11 @@
 import yaml
+from pathlib import Path
 
 
 class ExecutionManager:
     agents_dict = None
     prompts_dict = None
-    yaml_path = './run_settings.yaml'
+    yaml_path = Path(__file__).resolve().with_name("run_settings.yaml")
 
     @classmethod
     def initialize(cls):

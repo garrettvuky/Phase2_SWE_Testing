@@ -1,6 +1,6 @@
 agents:
   - model: human
-  - model: gpt-4o-mini
+  - model: gemini
     temperature: 0
 
 prompts:

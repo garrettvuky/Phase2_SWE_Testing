@@ -96,6 +96,7 @@ def resolve_repo_path(
     index_path: Path = REPO_INDEX_REL,
 ) -> Path:
     resolved_repos_root = _resolve_path(workdir, repos_root)
+    fallback = (resolved_repos_root / repo_id).resolve()
     resolved_index_path = _resolve_path(workdir, index_path)
     index = _load_repo_index(resolved_index_path)
     entry = index.get("repos", {}).get(repo_id)
@@ -105,8 +106,10 @@ def resolve_repo_path(
             candidate = Path(path_value).expanduser()
             if not candidate.is_absolute():
                 candidate = (workdir / candidate).resolve()
-            return candidate
-    return resolved_repos_root / repo_id
+            # Prefer index path only when it actually exists and is a git repo.
+            if (candidate / ".git").exists():
+                return candidate
+    return fallback
 
 
 def _repo_targets(records: list[dict[str, Any]]) -> list[tuple[str, str]]:

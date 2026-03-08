@@ -10,8 +10,9 @@ import mavenLib
 from dotenv import load_dotenv
 from litellm import completion
 from execution_manager import ExecutionManager
+from pathlib import Path
 
-load_dotenv()
+load_dotenv(Path(__file__).resolve().with_name(".env"))
 
 def set_gradle_variable(gradle_directory, gradle_version, system):
     """
@@ -267,7 +268,7 @@ def retrieve_code_coverage_and_cyclomatic_complexity(project_path, project_dataf
         modules = [module]
         
     jacoco_df_all = None
-    pitest_df_all = None
+    pitest_df_all = pd.DataFrame(columns=['Focal_Class', 'Mutation_Coverage'])
     # For each module, retrieve the .csv files and read them to obtain the results from JaCoCo and PITest. All the results are then merged into a single DataFrame.
     for module in modules:
         jacoco_df = None
@@ -291,23 +292,24 @@ def retrieve_code_coverage_and_cyclomatic_complexity(project_path, project_dataf
             if os.path.exists(os.path.join(path, f"build/reports/pitest/mutations.csv")):
                 pitest_df = pd.read_csv(os.path.join(path, f"build/reports/pitest/mutations.csv"), header=None)
         
-        if jacoco_df is None or pitest_df is None:
+        if jacoco_df is None:
             return None
-        
-        pitest_df[0] = pitest_df[0].str.replace('.java', '')
-        pitest_df.columns = ['Focal_Class', 'Package', 'Mutation_Name', 'Method_Name', 'Line_Number', 'Result', 'Killing_test']
-        # Each row of the pitest_df DataFrame represents a mutation
-        # Focal_Class: the name of the focal class without the .java extension
-        # Package: the package of the focal class
-        # Mutation_Name: the name of the engine used for the mutation
-        # Method_Signature: the name of the method involved in the mutation
-        # Line_Number: the number of the line of code involved in the mutation
-        # Killing_Test: the test that ultimately killed the mutation
-        pitest_df = pitest_df.groupby('Focal_Class').agg(
-            {'Result': lambda x: round((x == 'KILLED').sum() / len(x) * 100, 2)})
-        pitest_df = pitest_df.rename(columns={'Result': 'Mutation_Coverage'})
-        pitest_df = pitest_df.reset_index()
-        pitest_df_all = pd.concat([pitest_df_all, pitest_df], ignore_index=True)
+
+        if pitest_df is not None:
+            pitest_df[0] = pitest_df[0].str.replace('.java', '')
+            pitest_df.columns = ['Focal_Class', 'Package', 'Mutation_Name', 'Method_Name', 'Line_Number', 'Result', 'Killing_test']
+            # Each row of the pitest_df DataFrame represents a mutation
+            # Focal_Class: the name of the focal class without the .java extension
+            # Package: the package of the focal class
+            # Mutation_Name: the name of the engine used for the mutation
+            # Method_Signature: the name of the method involved in the mutation
+            # Line_Number: the number of the line of code involved in the mutation
+            # Killing_Test: the test that ultimately killed the mutation
+            pitest_df = pitest_df.groupby('Focal_Class').agg(
+                {'Result': lambda x: round((x == 'KILLED').sum() / len(x) * 100, 2)})
+            pitest_df = pitest_df.rename(columns={'Result': 'Mutation_Coverage'})
+            pitest_df = pitest_df.reset_index()
+            pitest_df_all = pd.concat([pitest_df_all, pitest_df], ignore_index=True)
 
         jacoco_df = jacoco_df.rename(columns={'CLASS': 'Focal_Class'})
         jacoco_df_all = pd.concat([jacoco_df_all, jacoco_df], ignore_index=True)
@@ -363,7 +365,8 @@ def retrieve_code_coverage_and_cyclomatic_complexity(project_path, project_dataf
     measures_df = pd.merge(measures_df, pitest_df_all, how="left",
                                 on=['Focal_Class'])
     measures_df.drop(columns=['GROUP', 'PACKAGE', 'INSTRUCTION_MISSED', 'INSTRUCTION_COVERED', 'BRANCH_MISSED', 'BRANCH_COVERED', 'LINE_MISSED', 'LINE_COVERED', 'COMPLEXITY_MISSED', 'COMPLEXITY_COVERED', 'METHOD_MISSED', 'METHOD_COVERED'], inplace=True)
-
+    if 'Mutation_Coverage' in measures_df.columns:
+        measures_df['Mutation_Coverage'] = measures_df['Mutation_Coverage'].fillna('-')
 
     return measures_df
 

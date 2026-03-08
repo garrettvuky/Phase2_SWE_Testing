@@ -12,14 +12,43 @@ from execution_manager import ExecutionManager
 import project_structure_analyzer as psa
 import project_dependencies_analyzer as pda
 from dotenv import load_dotenv
+from pathlib import Path
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
-load_dotenv()
+load_dotenv(Path(__file__).resolve().with_name(".env"))
 
 ExecutionManager.initialize()
 supported_test_types = ExecutionManager.get_agents_list()
 supported_techniques = ExecutionManager.get_prompts_list()
+
+def ensure_project_metadata_files(project_path):
+    """
+    Ensure project metadata JSON files exist before they are loaded.
+    Falls back to empty JSON objects if analyzers fail.
+    """
+    structure_file = os.path.join(project_path, "project_structure.json")
+    dependencies_file = os.path.join(project_path, "project_dependencies.json")
+
+    if not os.path.exists(structure_file):
+        try:
+            psa.save_project_structure(project_path)
+        except Exception as e:
+            print(f"Warning: failed generating project_structure.json for {project_path}: {e}")
+
+    if not os.path.exists(dependencies_file):
+        try:
+            pda.save_project_dependencies(project_path)
+        except Exception as e:
+            print(f"Warning: failed generating project_dependencies.json for {project_path}: {e}")
+
+    # Safe fallback so downstream loaders do not crash.
+    if not os.path.exists(structure_file):
+        with open(structure_file, "w", encoding="utf-8") as handle:
+            json.dump({}, handle)
+    if not os.path.exists(dependencies_file):
+        with open(dependencies_file, "w", encoding="utf-8") as handle:
+            json.dump({}, handle)
 
 def select_projects_to_process():
     """
@@ -92,8 +121,8 @@ def generate_files(test_types, techniques, execution_override, correct, specific
         print(f"\n\n\n-------------------------------------------------------------------")
         print(f"PROCESSING PROJECT: '{project}'")
         project_path = f'./compiledrepos/{project}'
-        #psa.save_project_structure(project_path)
-        #pda.save_project_dependencies(project_path)
+        os.makedirs(os.path.join('output', project), exist_ok=True)
+        ensure_project_metadata_files(project_path)
         project_structure = psa.get_structure(project_path)
         project_dependencies = pda.get_structure(project_path)
         flag_find = True
@@ -970,36 +999,25 @@ def verify_if_project_test_type_has_already_been_executed(project, test_type, ou
                 execution (bool): True if the project has already been executed, False otherwise.
     """
     check_df = False
-    # check if the project/test type has alrady been processed in output_agone_projects dataframe
-    while(True):
-        if os.path.exists(output_agone_projects_path):
-            try:
-                output_agone_projects_df = pd.read_csv(output_agone_projects_path)
-                if output_agone_projects_df.empty:
-                    check_df = False
-                    break
-                project = int(project)
+    # check if the project/test type has already been processed in output_agone_projects dataframe
+    if not os.path.exists(output_agone_projects_path):
+        return False
 
-                if technique is None: # if the test type is not AI-related
-                    exists = ((output_agone_projects_df['Project'] == project) & (output_agone_projects_df['Generator(LLM/EVOSUITE)'] == test_type)).any()
-                    if exists == True:
-                        check_df = True
-                    else:
-                        check_df = False
-                    break
-                      
-                else: # if the test type is AI-related
-                    exists = ((output_agone_projects_df['Project'] == project ) & (output_agone_projects_df['Generator(LLM/EVOSUITE)'] == test_type) & (output_agone_projects_df['Prompt_Technique'] == technique)).any()
-                if exists == True:
-                    check_df = True
-                else:
-                    check_df = False
-                break
-                      
-            except Exception as e:
-                print(e)
-                check_df = False
-                break
+    try:
+        output_agone_projects_df = pd.read_csv(output_agone_projects_path)
+        if output_agone_projects_df.empty:
+            return False
+        project = int(project)
+
+        if technique is None: # if the test type is not AI-related
+            exists = ((output_agone_projects_df['Project'] == project) & (output_agone_projects_df['Generator(LLM/EVOSUITE)'] == test_type)).any()
+            return bool(exists)
+        else: # if the test type is AI-related
+            exists = ((output_agone_projects_df['Project'] == project ) & (output_agone_projects_df['Generator(LLM/EVOSUITE)'] == test_type) & (output_agone_projects_df['Prompt_Technique'] == technique)).any()
+            return bool(exists)
+    except Exception as e:
+        print(e)
+        check_df = False
     return check_df
 
 def ask_user_clean_all():
@@ -1074,9 +1092,9 @@ def clean_previous_execution_files_project(project):
             project: the ID of the project.
     """
     project_path = os.path.join('output', project)
-    if os.path.isfile(project_path):
+    if os.path.isdir(project_path):
         for filename in os.listdir(project_path):
-            if filename.endswith('.csv') and filename is not f"{project}_Output.csv":
+            if filename.endswith('.csv') and filename != f"{project}_Output.csv":
                 os.remove(os.path.join(project_path, filename))
 
 def ask_to_correct():

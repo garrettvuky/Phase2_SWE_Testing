@@ -4312,3 +4312,15 @@ AttributeError: 'CompletedProcess' object has no attribute 'splitlines'
 2026-03-06 20:19:00,885 | INFO | phase2.cli | Logs writing to C:\Users\osart\Phase2_SWE_Testing-data_ingestion\phase2\artifacts\logs\phase2.log
 2026-03-06 22:22:08,917 | INFO | phase2.config | Loaded config from C:\Users\osart\Phase2_SWE_Testing-data_ingestion\phase2\configs\experiments\default.yaml
 2026-03-06 22:22:08,918 | INFO | phase2.cli | Logs writing to C:\Users\osart\Phase2_SWE_Testing-data_ingestion\phase2\artifacts\logs\phase2.log
+2026-03-08 14:21:52,671 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\Phase2_SWE_Testing\phase2\configs\experiments\default.yaml
+2026-03-08 14:21:52,672 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\Phase2_SWE_Testing\phase2\artifacts\logs\phase2.log
+2026-03-08 14:21:53,486 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\Phase2_SWE_Testing\phase2\configs\experiments\default.yaml
+2026-03-08 14:21:53,486 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\Phase2_SWE_Testing\phase2\artifacts\logs\phase2.log
+2026-03-08 14:21:54,394 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\Phase2_SWE_Testing\phase2\configs\experiments\default.yaml
+2026-03-08 14:21:54,395 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\Phase2_SWE_Testing\phase2\artifacts\logs\phase2.log
+2026-03-08 14:21:55,227 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\Phase2_SWE_Testing\phase2\configs\experiments\default.yaml
+2026-03-08 14:21:55,227 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\Phase2_SWE_Testing\phase2\artifacts\logs\phase2.log
+2026-03-08 14:21:56,040 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\Phase2_SWE_Testing\phase2\configs\experiments\default.yaml
+2026-03-08 14:21:56,040 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\Phase2_SWE_Testing\phase2\artifacts\logs\phase2.log
+2026-03-08 14:25:12,743 | INFO | phase2.config | Loaded config from C:\Users\garre\Desktop\P2\New folder\Phase2_SWE_Testing\phase2\configs\experiments\default.yaml
+2026-03-08 14:25:12,744 | INFO | phase2.cli | Logs writing to C:\Users\garre\Desktop\P2\New folder\Phase2_SWE_Testing\phase2\artifacts\logs\phase2.log

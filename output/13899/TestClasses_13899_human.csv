@@ -1,0 +1,2 @@
+index,Project,Focal_Class,Test_Class,Focal_Path,Test_Path,Module,Cyclomatic_complexity,Lines_of_code,Branch_coverage,Method_coverage,Line_coverage,Mutation_Coverage
+144,13899,IoUtils,IoUtilsTest,compiledrepos/13899/mysql/codec/src/main/java/org/adbcj/mysql/codec/IoUtils.java,compiledrepos/13899/mysql/codec/src/test/java/org/adbcj/mysql/codec/IoUtilsTest.java,mysql/codec,41,107,16.67,17.39,15.89,-

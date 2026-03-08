@@ -534,25 +534,44 @@ def run_maven_test_command(path, project_dataframe, system):
         test_classes = f'-Dtest={test_classes}'
         print(f"Test classes: {test_classes}")
         subprocess.check_call(['java', '-version'])
-        if system == 'Windows':
-            subprocess.run(['mvn.cmd', 'license:format'], cwd=path, capture_output=True)
-            subprocess.run(['mvn.cmd', 'spotless:apply'], cwd=path, capture_output=True)
-            result = subprocess.run(
-                    ['mvn.cmd', test_classes, '-Drat.skip=true', '-DfailIfNoTests=false', '-Dcheckstyle.skip=true', 'clean', 'verify', 'jacoco:prepare-agent', 'jacoco:report', 'org.pitest:pitest-maven:mutationCoverage', '-Drat.skip=true', '-DfailIfNoTests=false', '-Dcheckstyle.skip=true'], cwd=path, capture_output=True, text=True)
-        else: 
-            subprocess.run(['mvn', 'license:format'], cwd=path, capture_output=True)
-            subprocess.run(['mvn', 'spotless:apply'], cwd=path, capture_output=True)
-            result = subprocess.run(
-                    ['mvn', test_classes, '-Drat.skip=true', '-DfailIfNoTests=false', '-Dcheckstyle.skip=true', 'clean', 'verify', 'jacoco:prepare-agent', 'jacoco:report', 'org.pitest:pitest-maven:mutationCoverage', '-Drat.skip=true', '-DfailIfNoTests=false', '-Dcheckstyle.skip=true'], cwd=path, capture_output=True, text=True)
+        mvn_executable = 'mvn.cmd' if system == 'Windows' else 'mvn'
+        common_flags = [test_classes, '-Drat.skip=true', '-DfailIfNoTests=false', '-Dcheckstyle.skip=true']
 
-        if result.stdout.__contains__(f'BUILD SUCCESS'):
-            return True, None
-        else:
+        subprocess.run([mvn_executable, 'license:format'], cwd=path, capture_output=True)
+        subprocess.run([mvn_executable, 'spotless:apply'], cwd=path, capture_output=True)
+
+        # Core pass/fail is based on compile/tests + JaCoCo generation.
+        result = subprocess.run(
+            [mvn_executable, *common_flags, 'clean', 'verify', 'jacoco:prepare-agent', 'jacoco:report'],
+            cwd=path,
+            capture_output=True,
+            text=True,
+        )
+
+        if not result.stdout.__contains__('BUILD SUCCESS'):
             errori = errorCorrection.extract_errors(result.stdout, result.stderr)
             print("\n--------------------")
-            print (errori)
+            print(errori)
             print("\n--------------------")
             return False, errori
+
+        # PIT can fail on some legacy projects/JDK combos; keep pipeline running and
+        # record mutation coverage as unavailable when this happens.
+        pit_result = subprocess.run(
+            [mvn_executable, *common_flags, 'org.pitest:pitest-maven:mutationCoverage'],
+            cwd=path,
+            capture_output=True,
+            text=True,
+        )
+        if not pit_result.stdout.__contains__('BUILD SUCCESS'):
+            print("[WARN] PIT mutation coverage failed; continuing without mutation metrics for this run.")
+            pit_errors = errorCorrection.extract_errors(pit_result.stdout, pit_result.stderr)
+            if pit_errors:
+                print("\n--------------------")
+                print(pit_errors)
+                print("\n--------------------")
+
+        return True, None
 
     except Exception as e:
             print(e)
@@ -1010,10 +1029,37 @@ def process_maven_project(project, test_types, techniques, project_path, project
                     # Make the appropriate API call and get the response
                     print(f"\nMaking API call with llm: {test_type}, technique: {technique}, focal class: {name_focal_class}")
                     package_test_class = utils.find_package(test_path)
-                    response, messages = utils.make_api_call(test_type, technique, focal_class, focal_path, testing_framework, java_version, has_mockito, test_path, name_test_class, project_structure, project_dependencies, package_test_class)
+                    gemini_generation_meta = {"telemetry": []}
+                    if test_type == "gemini":
+                        response, gemini_generation_meta = errorCorrection.generate_regenerative_test(
+                            focal_path=focal_path,
+                            focal_class=focal_class,
+                            name_test_class=name_test_class,
+                            package_test_class=package_test_class,
+                            java_version=java_version,
+                            testing_framework=testing_framework,
+                        )
+                        messages = []
+                    else:
+                        response, messages = utils.make_api_call(
+                            test_type,
+                            technique,
+                            focal_class,
+                            focal_path,
+                            testing_framework,
+                            java_version,
+                            has_mockito,
+                            test_path,
+                            name_test_class,
+                            project_structure,
+                            project_dependencies,
+                            package_test_class,
+                        )
                     print(f"API call completed with test_type: {test_type}, technique: {technique}, focal class: {name_focal_class}")
                     if response is None:
                         print(f"ERROR: Anomalous response from the call to the API: {response}")
+                        if test_type == "gemini" and gemini_generation_meta.get("error"):
+                            print(f"GEMINI CLI error: {gemini_generation_meta.get('error')}")
                         try:
                             utils.write_files(dictionary_for_restore)
                             with open(output_path_failed, 'w') as file:
@@ -1055,16 +1101,67 @@ def process_maven_project(project, test_types, techniques, project_path, project
                     # Run the Maven package command
                     print("--//loading maven execution..//")
                     esito, errori = run_maven_test_command(project_path, project_df, system)
-                    if not esito and correct:  # Se il test Maven fallisce
-                        chance_result = False
-                        for num_chance in range(1, 5):
-                            if chance_result:
-                                df_chance = pd.concat([df_chance, pd.DataFrame([{'Test_Class': name_test_class, 'Test_Path': test_path, 'Chance': num_chance}])], ignore_index=True)
-                                break
-                            chance_result, errori = errorCorrection.correct_errors(project, test_type, technique, test_path, project_path, project_df, system, messages, errori, dictionary_for_restore, num_chance, "Maven")
-                        errorCorrection.save_conversation_to_json(messages, name_test_class, f"/Users/nicomede/Desktop/classes2test_private 2/compiledrepos/{project}")
-                        if not chance_result:
-                            df_chance = pd.concat([df_chance, pd.DataFrame([{'Test_Class': name_test_class, 'Test_Path': test_path, 'Chance': 6}])], ignore_index=True)
+                    if test_type == "gemini":
+                        errorCorrection.record_regenerative_outcome(
+                            project=project,
+                            test_type=test_type,
+                            technique=technique,
+                            test_path=test_path,
+                            project_path=project_path,
+                            success=esito,
+                            error=errori,
+                            telemetry_records=gemini_generation_meta.get("telemetry", []),
+                        )
+
+                    if not esito and correct:  # if Maven test fails
+                        chance_result, errori, correction_meta = errorCorrection.correct_errors(
+                            project,
+                            test_type,
+                            technique,
+                            test_path,
+                            project_path,
+                            project_df,
+                            system,
+                            messages,
+                            errori,
+                            dictionary_for_restore,
+                            1,
+                            "Maven",
+                        )
+                        if chance_result:
+                            last_execution = True
+                            df_chance = pd.concat(
+                                [
+                                    df_chance,
+                                    pd.DataFrame(
+                                        [
+                                            {
+                                                "Test_Class": name_test_class,
+                                                "Test_Path": test_path,
+                                                "Chance": correction_meta.get("iterations_used", 1),
+                                            }
+                                        ]
+                                    ),
+                                ],
+                                ignore_index=True,
+                            )
+                        else:
+                            last_execution = False
+                            df_chance = pd.concat(
+                                [
+                                    df_chance,
+                                    pd.DataFrame(
+                                        [
+                                            {
+                                                "Test_Class": name_test_class,
+                                                "Test_Path": test_path,
+                                                "Chance": 6,
+                                            }
+                                        ]
+                                    ),
+                                ],
+                                ignore_index=True,
+                            )
                     elif not esito and not correct:
                         print(f"Package command failed for project: {project}, test type: {test_type}, technique: {technique}\n")
                     elif esito:
@@ -1170,7 +1267,7 @@ def process_maven_module(project, module, test_types, techniques, path, project_
             csv_path_input_test_smell = utils.configure_test_smell_detector(module_df, project)
             # Run the Maven package command
             print("--//loading maven execution..//")
-            if run_maven_test_command(path, module_df, system)==True:
+            if run_maven_test_command(path, module_df, system)[0]==True:
                 print(f"Package command completed for {project}_{module}\n")
             else:
                 print(f"Package command failed for {project}_{module}. Switch to next project/module...\n")
@@ -1289,7 +1386,7 @@ def process_maven_module(project, module, test_types, techniques, path, project_
                     swtich_to_next_test_type = True
                     break # Switch to next test type
                 print("--//loading maven execution..//")
-                if run_maven_test_command(path, module_df, system)==False: # if error while running maven
+                if run_maven_test_command(path, module_df, system)[0]==False: # if error while running maven
                     print(f"Package command failed for project: {project}_{module}, test type: {test_type}\n")
                     module_df_evosuite = module_df_evosuite[module_df_evosuite['Test_Path'] != row['Test_Path']] # Delete the row from the DataFrame that corresponds to the test class causing an error during Maven execution
                     utils.remove_evosuite_scaffolding_files(list(test_path))
@@ -1329,7 +1426,7 @@ def process_maven_module(project, module, test_types, techniques, path, project_
                     print("The test smell detector ended successfully")  
                 if last_execution == False: # if last maven execution outcome is False, then I run one more time maven
                     print("--//loading maven execution..//")
-                    if run_maven_test_command(path, module_df, system)==False: # if error while running maven
+                    if run_maven_test_command(path, module_df, system)[0]==False: # if error while running maven
                         print('An error occured while trying to execute the final version of test classes.\n')
                         try:
                             pom_before_evosuite.write(os.path.join(path, "pom.xml")) # restore pom to previous version
@@ -1412,10 +1509,36 @@ def process_maven_module(project, module, test_types, techniques, path, project_
                     # Make the appropriate API call and get the response
                     print(f"\nMaking API call with llm: {test_type}, technique: {technique}, focal class: {name_focal_class}")
                     package_test_class = utils.find_package(test_path)
-                    response = utils.make_api_call(test_type, technique, focal_class, testing_framework, java_version, has_mockito, test_path, name_test_class, project_structure, project_dependencies, package_test_class)
+                    gemini_generation_meta = {"telemetry": []}
+                    if test_type == "gemini":
+                        response, gemini_generation_meta = errorCorrection.generate_regenerative_test(
+                            focal_path=focal_path,
+                            focal_class=focal_class,
+                            name_test_class=name_test_class,
+                            package_test_class=package_test_class,
+                            java_version=java_version,
+                            testing_framework=testing_framework,
+                        )
+                    else:
+                        response, _ = utils.make_api_call(
+                            test_type,
+                            technique,
+                            focal_class,
+                            focal_path,
+                            testing_framework,
+                            java_version,
+                            has_mockito,
+                            test_path,
+                            name_test_class,
+                            project_structure,
+                            project_dependencies,
+                            package_test_class,
+                        )
                     print(f"API call completed with test_type: {test_type}, technique: {technique}, focal class: {name_focal_class}")
                     if response is None:
                         print(f"ERROR: Anomalous response from the call to the API: {response}")
+                        if test_type == "gemini" and gemini_generation_meta.get("error"):
+                            print(f"GEMINI CLI error: {gemini_generation_meta.get('error')}")
                         try:
                             utils.write_files(dictionary_for_restore)
                             with open(output_path_failed, 'w') as file:
@@ -1456,7 +1579,19 @@ def process_maven_module(project, module, test_types, techniques, path, project_
 
                     # Run the Maven package command
                     print("--//loading maven execution..//")
-                    if run_maven_test_command(path, module_df, system)==False: # if error while running maven
+                    esito, errori = run_maven_test_command(path, module_df, system)
+                    if test_type == "gemini":
+                        errorCorrection.record_regenerative_outcome(
+                            project=project,
+                            test_type=test_type,
+                            technique=technique,
+                            test_path=test_path,
+                            project_path=path,
+                            success=esito,
+                            error=errori,
+                            telemetry_records=gemini_generation_meta.get("telemetry", []),
+                        )
+                    if esito == False: # if error while running maven
                         print(f"Package command failed for project: {project}_{module}, test type: {test_type}, technique: {technique}\n")
                         module_df_technique = module_df_technique [module_df_technique['Test_Path'] != row['Test_Path']] # Delete the row from the DataFrame that corresponds to the test class causing an error during Maven execution
                         utils.write_file(test_path, human_test_class) # Restore to human version the test class causing an error during Maven execution
@@ -1490,7 +1625,7 @@ def process_maven_module(project, module, test_types, techniques, path, project_
                         print("The test smell detector ended successfully")  
                     if last_execution == False: # if last maven execution outcome is False, then I run one more time maven
                         print("--//loading maven execution..//")
-                        if run_maven_test_command(path, module_df, system)==False: # if error while running maven
+                        if run_maven_test_command(path, module_df, system)[0]==False: # if error while running maven
                             print('An error occured while trying to execute the final version of test classes.\n')
                             try:
                                 utils.write_files(dictionary_for_restore)

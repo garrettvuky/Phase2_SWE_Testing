@@ -329,23 +329,21 @@ def run_gradle_test_command(path, project_dataframe, system):
     """
     project_df = project_dataframe.copy()
     try:
-        # Create -Dtest= parameter only for the test classes that exist
+        # Build a test selector list for Gradle's --tests argument.
         test_classes = project_df['Test_Path'].tolist()
         result = None
-        # convert the test pathresult =  to the correct format cut after test/java/
-        test_classes = [test_path.split('test/java/')[1].replace('/', '.').replace('.java', '') for test_path in
-                        test_classes]
-        test_classes = ','.join(test_classes)
-        test_classes = f'--tests={test_classes}'
-        test_classes = "--tests=org.bitcoinj.base.CoinTest" # da rimuovere
-        print(f"Test classes: {test_classes}")
+        test_classes = [test_path.split('test/java/')[1].replace('/', '.').replace('.java', '') for test_path in test_classes]
+        test_args = []
+        for test_class in test_classes:
+            test_args.extend(["--tests", test_class])
+        print(f"Test classes: {','.join(test_classes)}")
         subprocess.check_call(['java', '-version'])
         if system == 'Windows':
             result = subprocess.run(
-                    ['gradle.bat', 'clean', 'test', test_classes, 'pitest'], cwd=path, capture_output=True, text=True, timeout=900)
+                    ['gradle.bat', 'clean', 'test', 'jacocoTestReport', *test_args, 'pitest'], cwd=path, capture_output=True, text=True, timeout=900)
         else: 
             result = subprocess.run(
-                    ['gradle', 'clean', 'test', test_classes, 'pitest'], cwd=path, capture_output=True, text=True, timeout=900)
+                    ['gradle', 'clean', 'test', 'jacocoTestReport', *test_args, 'pitest'], cwd=path, capture_output=True, text=True, timeout=900)
         if result.stdout.__contains__("BUILD SUCCESSFUL"):  
             return True, None
         else:
@@ -357,7 +355,7 @@ def run_gradle_test_command(path, project_dataframe, system):
             
     except Exception as e:
             print(e)
-            return False
+            return False, None
     
 
 
@@ -785,10 +783,37 @@ def process_gradle_project(project, test_types, techniques, project_path, projec
                     # Make the appropriate API call and get the response
                     print(f"\nMaking API call with llm: {test_type}, technique: {technique}, focal class: {name_focal_class}")
                     package_test_class = utils.find_package(test_path)
-                    response, messages = utils.make_api_call(test_type, technique, focal_class, testing_framework, java_version, has_mockito, test_path, name_test_class, project_structure, project_dependencies, package_test_class)
+                    gemini_generation_meta = {"telemetry": []}
+                    if test_type == "gemini":
+                        response, gemini_generation_meta = errorCorrection.generate_regenerative_test(
+                            focal_path=focal_path,
+                            focal_class=focal_class,
+                            name_test_class=name_test_class,
+                            package_test_class=package_test_class,
+                            java_version=java_version,
+                            testing_framework=testing_framework,
+                        )
+                        messages = []
+                    else:
+                        response, messages = utils.make_api_call(
+                            test_type,
+                            technique,
+                            focal_class,
+                            focal_path,
+                            testing_framework,
+                            java_version,
+                            has_mockito,
+                            test_path,
+                            name_test_class,
+                            project_structure,
+                            project_dependencies,
+                            package_test_class,
+                        )
                     print(f"API call completed with test_type: {test_type}, technique: {technique}, focal class: {name_focal_class}")
                     if response is None:
                         print(f"ERROR: Anomalous response from the call to the API: {response}")
+                        if test_type == "gemini" and gemini_generation_meta.get("error"):
+                            print(f"GEMINI CLI error: {gemini_generation_meta.get('error')}")
                         try:
                             utils.write_files(dictionary_for_restore)
                             with open(output_path_failed, 'w') as file:
@@ -830,13 +855,33 @@ def process_gradle_project(project, test_types, techniques, project_path, projec
                     # Run the Gradle package command
                     print("--//loading gradle execution..//")
                     esito, errori = run_gradle_test_command(project_path, project_df, system)
+                    if test_type == "gemini":
+                        errorCorrection.record_regenerative_outcome(
+                            project=project,
+                            test_type=test_type,
+                            technique=technique,
+                            test_path=test_path,
+                            project_path=project_path,
+                            success=esito,
+                            error=errori,
+                            telemetry_records=gemini_generation_meta.get("telemetry", []),
+                        )
                     if not esito and correct == True: # if error while running gradle
-                        chance_result = False
-                        for num_chance in range (2,6):
-                            if chance_result:
-                                break
-                            chance_result, errori = errorCorrection.correct_errors(project, test_type, technique, test_path, project_path, project_df, system, messages, errori, dictionary_for_restore, num_chance, "Gradle")
-                        errorCorrection.save_conversation_to_json(messages, name_test_class, "/Users/nicomede/Desktop/classes2test_private")
+                        chance_result, errori, correction_meta = errorCorrection.correct_errors(
+                            project,
+                            test_type,
+                            technique,
+                            test_path,
+                            project_path,
+                            project_df,
+                            system,
+                            messages,
+                            errori,
+                            dictionary_for_restore,
+                            1,
+                            "Gradle",
+                        )
+                        last_execution = bool(chance_result)
                     elif not esito and correct == False:
                         print(
                             f"Package command failed for project: {project}, test type: {test_type}, technique: {technique}\n")
@@ -1130,7 +1175,7 @@ def process_gradle_module(project, module, test_types, techniques, path, module_
                     print("The test smell detector ended successfully")  
                 if last_execution == False: # if last gradle execution outcome is False, then I run one more time gradle
                     print("--//loading gradle execution..//")
-                    if run_gradle_test_command(path, module, system)[0]==False: # if error while running gradle
+                    if run_gradle_test_command(path, module_df, system)[0]==False: # if error while running gradle
                         print('An error occured while trying to execute the final version of test classes.\n')
                         try:
                             write_build_gradle(path, build_gradle_before_evosuite)
@@ -1212,10 +1257,36 @@ def process_gradle_module(project, module, test_types, techniques, path, module_
                     # Make the appropriate API call and get the response
                     print(f"\nMaking API call with llm: {test_type}, technique: {technique}, focal class: {name_focal_class}")
                     package_test_class = utils.find_package(test_path)
-                    response = utils.make_api_call(test_type, technique, focal_class, testing_framework, java_version, has_mockito, test_path, name_test_class, project_structure, project_dependencies, package_test_class)
+                    gemini_generation_meta = {"telemetry": []}
+                    if test_type == "gemini":
+                        response, gemini_generation_meta = errorCorrection.generate_regenerative_test(
+                            focal_path=focal_path,
+                            focal_class=focal_class,
+                            name_test_class=name_test_class,
+                            package_test_class=package_test_class,
+                            java_version=java_version,
+                            testing_framework=testing_framework,
+                        )
+                    else:
+                        response, _ = utils.make_api_call(
+                            test_type,
+                            technique,
+                            focal_class,
+                            focal_path,
+                            testing_framework,
+                            java_version,
+                            has_mockito,
+                            test_path,
+                            name_test_class,
+                            project_structure,
+                            project_dependencies,
+                            package_test_class,
+                        )
                     print(f"API call completed with test_type: {test_type}, technique: {technique}, focal class: {name_focal_class}")
                     if response is None:
                         print(f"ERROR: Anomalous response from the call to the API: {response}")
+                        if test_type == "gemini" and gemini_generation_meta.get("error"):
+                            print(f"GEMINI CLI error: {gemini_generation_meta.get('error')}")
                         try:
                             utils.write_files(dictionary_for_restore)
                             with open(output_path_failed, 'w') as file:
@@ -1256,7 +1327,19 @@ def process_gradle_module(project, module, test_types, techniques, path, module_
 
                     # Run the Gradle package command
                     print("--//loading gradle execution..//")
-                    if run_gradle_test_command(path, module_df, system)[0]==False: # if error while running gradle
+                    esito, errori = run_gradle_test_command(path, module_df, system)
+                    if test_type == "gemini":
+                        errorCorrection.record_regenerative_outcome(
+                            project=project,
+                            test_type=test_type,
+                            technique=technique,
+                            test_path=test_path,
+                            project_path=path,
+                            success=esito,
+                            error=errori,
+                            telemetry_records=gemini_generation_meta.get("telemetry", []),
+                        )
+                    if esito == False: # if error while running gradle
                         print(f"Package command failed for project: {project}_{module}, test type: {test_type}, technique: {technique}\n")
                         module_df_technique = module_df_technique[module_df_technique['Test_Path'] != row['Test_Path']] # Delete the row from the DataFrame that corresponds to the test class causing an error during Gradle execution
                         utils.write_file(test_path, human_test_class) # Restore to human version the test class causing an error during Gradle execution

@@ -16,7 +16,7 @@ import gradleLib
 import project_structure_analyzer as psa
 import project_dependencies_analyzer as pda
 
-load_dotenv()
+load_dotenv(Path(__file__).resolve().with_name(".env"))
 
 
 def extract_files():

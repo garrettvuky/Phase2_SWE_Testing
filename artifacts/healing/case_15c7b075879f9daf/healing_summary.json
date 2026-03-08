@@ -1,0 +1,48 @@
+{
+  "baseline_label": "ReAssert-style baseline",
+  "case_id": "case_15c7b075879f9daf",
+  "case_source": "<index:case_15c7b075879f9daf>",
+  "checked_out_modified_sha": "652a536b1dc043a8d694b04da4118a877f22d79b",
+  "direct_reassert_tool": {
+    "available": false,
+    "command": null,
+    "enabled": false,
+    "source": null
+  },
+  "duration_seconds": 2.375,
+  "iterations": [
+    {
+      "assertion_failure_count": 0,
+      "changed_files": [],
+      "direct_reassert_applied": false,
+      "direct_reassert_attempted": false,
+      "execution_error": null,
+      "failing_test_count": 0,
+      "failing_tests": [],
+      "iteration": 1,
+      "patch_diff_path": "C:\\Users\\garre\\Desktop\\P2\\New folder\\Phase2_SWE_Testing\\artifacts\\healing\\case_15c7b075879f9daf\\iter_1\\patch.diff",
+      "repair_count": 0,
+      "repair_strategy": "ReAssert-style baseline",
+      "repairs_path": "C:\\Users\\garre\\Desktop\\P2\\New folder\\Phase2_SWE_Testing\\artifacts\\healing\\case_15c7b075879f9daf\\iter_1\\repairs.json",
+      "report_paths_copied": [],
+      "report_paths_original": [],
+      "scoped_failing_test_count": 0,
+      "scoped_failing_tests": [],
+      "status": "fail",
+      "stderr_path": "C:\\Users\\garre\\Desktop\\P2\\New folder\\Phase2_SWE_Testing\\artifacts\\healing\\case_15c7b075879f9daf\\iter_1\\stderr.log",
+      "stdout_path": "C:\\Users\\garre\\Desktop\\P2\\New folder\\Phase2_SWE_Testing\\artifacts\\healing\\case_15c7b075879f9daf\\iter_1\\stdout.log",
+      "success": false
+    }
+  ],
+  "max_iterations": 1,
+  "max_minutes": 2,
+  "modified_commit": "652a536b1dc043a8d694b04da4118a877f22d79b",
+  "repo_id": "35897457",
+  "repo_path": "C:\\Users\\garre\\Desktop\\P2\\New folder\\Phase2_SWE_Testing\\repos\\35897457",
+  "restored_original_sha": "a9563e7d87db865c6ca0e6e186e77dfcad4093d7",
+  "started_at_utc": "2026-03-08T18:25:13Z",
+  "status": "ok",
+  "stop_reason": "no_progress_no_assertion_failures",
+  "timeout_seconds": 1800,
+  "use_mapper_scope": false
+}

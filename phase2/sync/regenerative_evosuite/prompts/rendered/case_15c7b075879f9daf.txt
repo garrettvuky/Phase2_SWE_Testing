@@ -1,0 +1,393 @@
+You are an automated Java test-repair agent.
+
+Your job is to repair failing tests after a focal-class code change.
+You must use both the focal-class context and test-class context provided below.
+
+Rules:
+1. Modify tests only. Never change production/focal class code.
+2. Keep package declarations and imports valid.
+3. Keep the fix minimal and deterministic.
+4. Preserve test intent; do not weaken assertions into trivial truths.
+5. Output must be valid Java patch content that compiles.
+6. If no safe fix is possible, return NO_SAFE_REPAIR.
+
+Context:
+REPO_ID: 35897457
+CASE_ID: case_15c7b075879f9daf
+BASE_COMMIT: 3a9db9b04ae7d9545301ade8340ebd3b6baea138
+MODIFIED_COMMIT: 652a536b1dc043a8d694b04da4118a877f22d79b
+
+FOCAL_CLASS_IDENTIFIER: Literal
+FOCAL_FILE_PATH: nxparser-model/src/main/java/org/semanticweb/yars/nx/Literal.java
+MAPPED_FOCAL_METHOD: toString
+
+TEST_CLASS_IDENTIFIER: LiteralTest
+TEST_FILE_PATH: nxparser-model/src/test/java/org/semanticweb/yars/nx/LiteralTest.java
+MAPPED_TEST_METHOD: testEmptyStringInConstructor
+
+FAILING_TESTS_JSON:
+[]
+
+BUILD_COMMANDS:
+'C:\Users\osart\OneDrive - Umich\SWTProject\Phase2_SWE_Testing\repos\35897457\gradlew.bat' test --console=plain
+
+FOCAL_CLASS_SOURCE:
+```java
+package org.semanticweb.yars.nx;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.semanticweb.yars.nx.util.NxUtil;
+
+/**
+ * An RDF literal of any data type
+ * 
+ * Need to do newline escaping for (string) literals otherwise it's not valid
+ * RDF any more.
+ * 
+ * @author Andreas Harth
+ * @author Tobias Kaefer
+ * @author Leonard Lausen
+ */
+public class Literal implements Node {
+	private static Logger _log = Logger.getLogger(Literal.class.getName());
+
+	/** The entire string in N-Triples syntax, including "", @ or ^^ . */
+	private final String _data;
+
+	// version number for serialization
+	private static final long serialVersionUID = 2L;
+
+	/**
+	 * Constructor (not in N-Triples syntax).
+	 * 
+	 * @param data
+	 *            - the Java string representation of the (simple) literal
+	 */
+	public Literal(String data) {
+		this(data, null, null, false);
+	}
+
+	/**
+	 * Constructor (please state whether data is in N-Triples syntax).
+	 * 
+	 * @param data
+	 * @param isNTriples
+	 *            set to true if data is in N-Triples (i.e., with "" and ^^<> or @)
+	 *            - no guarantees are made, if input does not conform to the
+	 *            spec. Make sure your escaping is valid!
+	 * @see <a href="http://www.w3.org/TR/n-triples/">The N-Triples spec</a>
+	 */
+	public Literal(String data, boolean isNTriples) {
+		this(data, null, null, isNTriples);
+	}
+
+	/**
+	 * Constructor (not in N-Triples syntax)
+	 * 
+	 * @param data
+	 *            the not-escaped string representation of the (simple) literal
+	 * @param lang
+	 *            the language tag for the literal.
+	 */
+	public Literal(String data, String lang) {
+		this(data, lang, null, false);
+	}
+
+	/**
+	 * Constructor (not in N-Triples syntax)
+	 * 
+	 * @param data
+	 *            the not-escaped string representation of the (simple) literal
+	 * @param dt
+	 *            the datatype Resource of the Literal
+	 */
+	public Literal(String data, Resource dt) {
+		this(data, null, dt, false);
+	}
+
+	/**
+	 * Constructor (not in N-Triples syntax).
+	 * 
+	 * @param data
+	 *            the not-escaped string representation of the (simple) literal
+	 * @param lang
+	 *            the language tag for the literal.
+	 * @param dt
+	 *            the datatype Resource of the Literal
+	 */
+	public Literal(String data, String lang, Resource dt) {
+		this(data, lang, dt, false);
+	}
+
+	/**
+	 * Construct a literal from constituent elements (please state whether data
+	 * is in N-Triples syntax).
+	 * 
+	 * @param data
+	 *            the literal string, in N-Triples or not, see parameter
+	 *            isNTriples
+	 * @param lang
+	 *            the language tag or null
+	 * @param dt
+	 *            the datatype or null
+	 * @param isNTriples
+	 *            whether parameter data is in already in N-Triples, i.e. can be
+	 *            stored without further checking (if true, parameters lang and
+	 *            dt get ignored). - no guarantees are made, if input does not
+	 *            conform to the spec. Make sure your escaping is valid!
+	 * @see <a href="http://www.w3.org/TR/n-triples/">The N-Triples spec</a>.
+	 */
+	private Literal(String data, String lang, Resource dt, boolean isNTriples) {
+		if (isNTriples) {
+			_data = data;
+		} else {
+			if (data.equals("") || data.charAt(0) != '\"'
+					|| data.charAt(data.length() - 1) != '\"'
+					|| (data.charAt(data.length() - 1) == '\"' && data
+							.charAt(data.length() - 2) == '\n')) {
+				_log.log(Level.FINE,
+						"Escaping and adding quotes for Literal {}", data);
+				data = NxUtil.escapeLiteral(data);
+				data = '\"' + data + '\"';
+			} else {
+				_log.log(Level.FINE, "Assuming spec conformity for Literal {}", data);
+			}
+
+			if ((lang != null) && dt != null) {
+				throw new IllegalArgumentException(
+						"Specify only one of language and datatype.");
+			}
+
+			_data = (data + ((lang == null) ? (dt == null) ? "" : ("^^" + dt)
+					: ("@" + lang)));
+		}
+	}
+
+	/**
+	 * Get the literal string.
+	 * 
+	 * @return the text of the literal in Java encoding
+	 */
+	@Override
+	public String getLabel() {
+		int i = _data.lastIndexOf("\"");
+		return NxUtil.unescape(_data.substring(1, i));
+	}
+
+	/**
+	 * Get language tag.
+	 * 
+	 * @return a) the language tag if one is supplied b) null pointer, if there
+	 *         is no such language tag
+	 */
+	public String getLanguageTag() {
+		int i = _data.lastIndexOf("\"");
+		String str = _data.substring(i + 1);
+
+		if (!str.startsWith("@")) {
+			return null;
+		} else {
+			return str.substring(1);
+		}
+	}
+
+	/**
+	 * Get data type.
+	 * 
+	 * @return a) the resource if one is supplied, b) null pointer, if there is
+	 *         no such resource
+	 */
+	public Resource getDatatype() {
+		int i = _data.lastIndexOf("\"");
+		String str = _data.substring(i + 1);
+
+		if (!str.startsWith("^^<") || !str.endsWith(">")) {
+			return null;
+		} else {
+			return new Resource(str.substring(2), true);
+		}
+	}
+
+	/**
+	 * Get the literal as a string (i.e., with "" and ^^<> or @). No unescaping
+	 * done.
+	 */
+	@Override
+	public String toString() {
+		return _data;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == this) {
+			return true;
+		}
+
+		return (o instanceof Literal) && ((Literal) o)._data.equals(_data);
+	}
+
+	@Override
+	public int hashCode() {
+		return _data.hashCode();
+	}
+
+	@Override
+	public int compareTo(Node n) {
+		return toString().compareTo(n.toString());
+	}
+}
+
+```
+
+TEST_CLASS_SOURCE:
+```java
+package org.semanticweb.yars.nx;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
+
+import org.junit.Test;
+
+public class LiteralTest {
+
+	@Test
+	public void testEmptyStringInConstructor() {
+		String data = "";
+		Literal l = new Literal(data);
+		assertEquals(l.toString(), "\"\"");
+	}
+
+	@Test
+	public void testProperLiteralSupplied() {
+		String data = "\"Test\"^^<http://example.org>";
+		Literal l = new Literal(data);
+		assertNotEquals(data, l.toString());
+	}
+
+	@Test
+	public void testLangTag() {
+	String data = "\"Test{}â€¦\"@en";
+		Literal l = new Literal(data, true);
+		assertEquals("en", l.getLanguageTag());
+	}
+
+	@Test
+	public void testIRIREF() {
+		String data = "\"Test{}â€¦\"^^<http://example.org>";
+		Literal l = new Literal(data, true);
+		assertEquals("<http://example.org>", l.getDatatype().toString());
+	}
+
+	@Test
+	public void testGetLabel() {
+		String data = "Test\"{}â€¦";
+		Literal l = new Literal(data);
+		System.out.println(l);
+		assertEquals("Test\"{}â€¦", l.getLabel());
+	}
+
+	@Test
+	public void testEmptyString() {
+		String quotedEmptyStringData = "\"\"";
+		Literal l = new Literal(quotedEmptyStringData, true);
+
+		assertNull(l.getLanguageTag());
+		assertNull(l.getDatatype());
+		assertEquals("", l.getLabel());
+		assertEquals(quotedEmptyStringData, l.toString());
+	}
+
+	@Test
+	public void testMultilineString() {
+		String s = "a\nb\nc";
+		Literal l = new Literal(s);
+
+		assertEquals("\"a\\nb\\nc\"", l.toString());
+	}
+
+	@Test
+	public void testTabString() {
+		String s = "a\tb\tc";
+		Literal l = new Literal(s);
+
+		// assertEquals("\"a\\tb\\tc\"", l.toString());
+		//
+		// Tabs do no have to be espace; only quotes, LF and CR and backslash:
+		// http://www.w3.org/TR/n-triples/#sec-literals
+		assertEquals("\"a\tb\tc\"", l.toString());
+	}
+
+	@Test
+	public void testQuotesInString() {
+		String s = "he said \"wow\"";
+		Literal l = new Literal(s);
+
+		assertEquals("\"he said \\\"wow\\\"\"", l.toString());
+	}
+
+	@Test
+	public void testQuotesInString2() {
+		String s = "he said \"Shakespeare said 'to be or not to be'\"";
+		Literal l = new Literal(s);
+
+		assertEquals(
+				"\"he said \\\"Shakespeare said 'to be or not to be'\\\"\"",
+				l.toString());
+	}
+
+	@Test
+	public void testCanonicalNtriplesLiteral() {
+		StringBuffer sb = new StringBuffer();
+
+		// only the following four characters should be escaped:
+		sb.append((char) 0x22); // quotation mark
+		sb.append((char) 0x5c); // slash
+		sb.append((char) 0x0a); // carriage return
+		sb.append((char) 0x0d); // line feed
+
+		// not others like for example:
+		sb.append((char) 0x08); // backspace
+		sb.append((char) 0x09); // tab
+		sb.append("Ã¤");
+		sb.append("'");
+		sb.append((char) 0x0e07); // a Thai character
+		sb.append((char) 0x1ce1); // a Vedic Character
+		char[] pair = Character.toChars(0x100002);
+		sb.append(pair[0]); // UTF-16 surrogate pair part 1
+		sb.append(pair[1]); // UTF-16 surrogate pair part 2
+
+		Literal l = new Literal(sb.toString());
+
+		assertEquals("\"\\\"\\\\\\n\\r\u0008\tÃ¤'\u0e07\u1ce1\udbc0\udc02\"",
+				l.toString());
+	}
+	
+	@Test
+	public void testWeirdLiteralFromWho(){
+		// found in http://id.who.int/icd/entity/351042657
+		// Literal: "\"A type of periodontal disease and includes localized aggressive periodontitis (LAP), and Generalized aggressive periodontitis (GAP).\n\""@en
+		String s = "\"\\\"A type of periodontal disease and includes localized aggressive periodontitis (LAP), and Generalized aggressive periodontitis (GAP).\\n\\\"\"@en";
+		
+		Literal l = new Literal(s,true);
+
+		// Currently, the rdfxml parser creates Literals using this constructor 
+		Literal l2 = new Literal(l.getLabel(), l.getLanguageTag());
+		
+		assertEquals(l.getLabel(), l2.getLabel());
+		assertEquals(l,l2);
+		
+	}
+}
+```
+
+Required output format:
+- Return ONLY a unified diff patch for TEST_FILE_PATH.
+- Do not include markdown fences.
+- Diff must start with:
+--- a/nxparser-model/src/test/java/org/semanticweb/yars/nx/LiteralTest.java
++++ b/nxparser-model/src/test/java/org/semanticweb/yars/nx/LiteralTest.java
+- If impossible, return exactly:
+NO_SAFE_REPAIR

@@ -265,7 +265,17 @@ def load_case_by_id(
     case_path = row.get("path")
     if not isinstance(case_path, str) or not case_path.strip():
         raise ValueError(f"Case index entry missing path for case_id={clean_id}")
-    return load_case(case_path)
+    candidate = Path(case_path).expanduser()
+    if not candidate.is_absolute():
+        candidate = (workdir / candidate).resolve()
+    if candidate.exists():
+        return load_case(candidate)
+
+    # Fallback for stale absolute paths copied from another machine/workdir.
+    fallback = (workdir / "cases" / clean_id / "case.json").resolve()
+    if fallback.exists():
+        return load_case(fallback)
+    raise FileNotFoundError(f"Case file not found for case_id={clean_id}: {candidate}")
 
 
 def list_cases(workdir: Path, index_rel: Path = DEFAULT_INDEX_REL) -> list[Case]:
@@ -277,7 +287,15 @@ def list_cases(workdir: Path, index_rel: Path = DEFAULT_INDEX_REL) -> list[Case]
         if not isinstance(path, str) or not path.strip():
             continue
         try:
-            cases.append(load_case(path))
+            candidate = Path(path).expanduser()
+            if not candidate.is_absolute():
+                candidate = (workdir / candidate).resolve()
+            if candidate.exists():
+                cases.append(load_case(candidate))
+                continue
+            fallback = (workdir / "cases" / case_id / "case.json").resolve()
+            if fallback.exists():
+                cases.append(load_case(fallback))
         except FileNotFoundError:
             continue
     return cases
