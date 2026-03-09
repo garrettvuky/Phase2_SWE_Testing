@@ -1,0 +1,53 @@
+{
+  "coverage": {
+    "branch_coverage_pct": null,
+    "line_coverage_pct": null,
+    "method_coverage_pct": null
+  },
+  "error": null,
+  "generated_at_utc": "2026-03-08T22:57:39Z",
+  "iterations": 3,
+  "per_iteration": [
+    {
+      "completion_tokens": null,
+      "iteration": 1,
+      "prompt_tokens": null,
+      "raw_stderr": "YOLO mode is enabled. All tool calls will be automatically approved.\nYOLO mode is enabled. All tool calls will be automatically approved.\n",
+      "raw_stdout": "{\n  \"session_id\": \"255d5a6c-cf99-47ac-9af1-bf04c21adbf2\",\n  \"response\": \"I have replaced the corrupted `LiteralTest.java` file with a proper JUnit test structure. This should resolve the compilation errors.\",\n  \"stats\": {\n    \"models\": {\n      \"gemini-2.5-flash\": {\n        \"api\": {\n          \"totalRequests\": 3,\n          \"totalErrors\": 0,\n          \"totalLatencyMs\": 9625\n        },\n        \"tokens\": {\n          \"input\": 3780,\n          \"prompt\": 41538,\n          \"candidates\": 253,\n          \"total\": 42729,\n          \"cached\": 37758,\n          \"thoughts\": 938,\n          \"tool\": 0\n        },\n        \"roles\": {\n          \"main\": {\n            \"totalRequests\": 3,\n            \"totalErrors\": 0,\n            \"totalLatencyMs\": 9625,\n            \"tokens\": {\n              \"input\": 3780,\n              \"prompt\": 41538,\n              \"candidates\": 253,\n              \"total\": 42729,\n              \"cached\": 37758,\n              \"thoughts\": 938,\n              \"tool\": 0\n            }\n          }\n        }\n      }\n    },\n    \"tools\": {\n      \"totalCalls\": 2,\n      \"totalSuccess\": 2,\n      \"totalFail\": 0,\n      \"totalDurationMs\": 16,\n      \"totalDecisions\": {\n        \"accept\": 2,\n        \"reject\": 0,\n        \"modify\": 0,\n        \"auto_accept\": 0\n      },\n      \"byName\": {\n        \"read_file\": {\n          \"count\": 1,\n          \"success\": 1,\n          \"fail\": 0,\n          \"durationMs\": 8,\n          \"decisions\": {\n            \"accept\": 1,\n            \"reject\": 0,\n            \"modify\": 0,\n            \"auto_accept\": 0\n          }\n        },\n        \"write_file\": {\n          \"count\": 1,\n          \"success\": 1,\n          \"fail\": 0,\n          \"durationMs\": 8,\n          \"decisions\": {\n            \"accept\": 1,\n            \"reject\": 0,\n            \"modify\": 0,\n            \"auto_accept\": 0\n          }\n        }\n      }\n    },\n    \"files\": {\n      \"totalLinesAdded\": 16,\n      \"totalLinesRemoved\": 4\n    }\n  }\n}",
+      "response_seconds": 19.64,
+      "total_tokens": null,
+      "validation_error": "missing_java_type_declaration"
+    },
+    {
+      "completion_tokens": null,
+      "iteration": 2,
+      "prompt_tokens": null,
+      "raw_stderr": "YOLO mode is enabled. All tool calls will be automatically approved.\nYOLO mode is enabled. All tool calls will be automatically approved.\nError executing tool replace: Error: Failed to edit, could not find the string to replace.\n",
+      "raw_stdout": "{\n  \"session_id\": \"782abbb6-bd20-4832-a334-4446a1554023\",\n  \"response\": \"I have overwritten the `LiteralTest.java` file with the correct code to address any potential hidden character or encoding issues. The file content is now:\\n\\n```java\\npackage org.semanticweb.yars.nx;\\n\\nimport org.junit.Test;\\nimport static org.junit.Assert.*;\\n\\npublic class LiteralTest {\\n\\n    @Test\\n    public void testConstructorAndGetValue() {\\n        // Assuming Literal has a constructor that takes a String and a getValue() method\\n        Literal literal = new Literal(\\\"testValue\\\");\\n        assertEquals(\\\"testValue\\\", literal.getValue());\\n    }\\n\\n    // Add more tests for other constructors, methods, and edge cases as needed.\\n}\\n```\\n\",\n  \"stats\": {\n    \"models\": {\n      \"gemini-2.5-flash\": {\n        \"api\": {\n          \"totalRequests\": 4,\n          \"totalErrors\": 0,\n          \"totalLatencyMs\": 14898\n        },\n        \"tokens\": {\n          \"input\": 5259,\n          \"prompt\": 57074,\n          \"candidates\": 530,\n          \"total\": 58971,\n          \"cached\": 51815,\n          \"thoughts\": 1367,\n          \"tool\": 0\n        },\n        \"roles\": {\n          \"main\": {\n            \"totalRequests\": 4,\n            \"totalErrors\": 0,\n            \"totalLatencyMs\": 14898,\n            \"tokens\": {\n              \"input\": 5259,\n              \"prompt\": 57074,\n              \"candidates\": 530,\n              \"total\": 58971,\n              \"cached\": 51815,\n              \"thoughts\": 1367,\n              \"tool\": 0\n            }\n          }\n        }\n      }\n    },\n    \"tools\": {\n      \"totalCalls\": 3,\n      \"totalSuccess\": 2,\n      \"totalFail\": 1,\n      \"totalDurationMs\": 23,\n      \"totalDecisions\": {\n        \"accept\": 3,\n        \"reject\": 0,\n        \"modify\": 0,\n        \"auto_accept\": 0\n      },\n      \"byName\": {\n        \"replace\": {\n          \"count\": 1,\n          \"success\": 0,\n          \"fail\": 1,\n          \"durationMs\": 12,\n          \"decisions\": {\n            \"accept\": 1,\n            \"reject\": 0,\n            \"modify\": 0,\n            \"auto_accept\": 0\n          }\n        },\n        \"read_file\": {\n          \"count\": 1,\n          \"success\": 1,\n          \"fail\": 0,\n          \"durationMs\": 4,\n          \"decisions\": {\n            \"accept\": 1,\n            \"reject\": 0,\n            \"modify\": 0,\n            \"auto_accept\": 0\n          }\n        },\n        \"write_file\": {\n          \"count\": 1,\n          \"success\": 1,\n          \"fail\": 0,\n          \"durationMs\": 7,\n          \"decisions\": {\n            \"accept\": 1,\n            \"reject\": 0,\n            \"modify\": 0,\n            \"auto_accept\": 0\n          }\n        }\n      }\n    },\n    \"files\": {\n      \"totalLinesAdded\": 16,\n      \"totalLinesRemoved\": 16\n    }\n  }\n}",
+      "response_seconds": 28.641,
+      "total_tokens": null
+    },
+    {
+      "completion_tokens": null,
+      "iteration": 3,
+      "prompt_tokens": null,
+      "raw_stderr": "YOLO mode is enabled. All tool calls will be automatically approved.\nYOLO mode is enabled. All tool calls will be automatically approved.\n",
+      "raw_stdout": "{\n  \"session_id\": \"11c0b0b1-eae5-427e-a545-896f94e91a42\",\n  \"response\": \"```java\\npackage org.semanticweb.yars.nx;\\n\\nimport org.junit.Test;\\nimport static org.junit.Assert.*;\\n\\npublic class LiteralTest {\\n\\n    @Test\\n    public void testConstructorAndGetValue() {\\n        // Assuming Literal has a constructor that takes a String and a getValue() method\\n        Literal literal = new Literal(\\\"testValue\\\");\\n        assertEquals(\\\"testValue\\\", literal.toString());\\n    }\\n\\n    // Add more tests for other constructors, methods, and edge cases as needed.\\n}\\n```\",\n  \"stats\": {\n    \"models\": {\n      \"gemini-2.5-flash\": {\n        \"api\": {\n          \"totalRequests\": 2,\n          \"totalErrors\": 0,\n          \"totalLatencyMs\": 10642\n        },\n        \"tokens\": {\n          \"input\": 3559,\n          \"prompt\": 26433,\n          \"candidates\": 226,\n          \"total\": 28036,\n          \"cached\": 22874,\n          \"thoughts\": 1377,\n          \"tool\": 0\n        },\n        \"roles\": {\n          \"main\": {\n            \"totalRequests\": 2,\n            \"totalErrors\": 0,\n            \"totalLatencyMs\": 10642,\n            \"tokens\": {\n              \"input\": 3559,\n              \"prompt\": 26433,\n              \"candidates\": 226,\n              \"total\": 28036,\n              \"cached\": 22874,\n              \"thoughts\": 1377,\n              \"tool\": 0\n            }\n          }\n        }\n      }\n    },\n    \"tools\": {\n      \"totalCalls\": 1,\n      \"totalSuccess\": 1,\n      \"totalFail\": 0,\n      \"totalDurationMs\": 11,\n      \"totalDecisions\": {\n        \"accept\": 1,\n        \"reject\": 0,\n        \"modify\": 0,\n        \"auto_accept\": 0\n      },\n      \"byName\": {\n        \"replace\": {\n          \"count\": 1,\n          \"success\": 1,\n          \"fail\": 0,\n          \"durationMs\": 11,\n          \"decisions\": {\n            \"accept\": 1,\n            \"reject\": 0,\n            \"modify\": 0,\n            \"auto_accept\": 0\n          }\n        }\n      }\n    },\n    \"files\": {\n      \"totalLinesAdded\": 1,\n      \"totalLinesRemoved\": 1\n    }\n  }\n}",
+      "response_seconds": 24.531,
+      "total_tokens": null
+    }
+  ],
+  "project": "35897457",
+  "stop_reason": "build_success",
+  "success": true,
+  "technique": "zero-shot3",
+  "telemetry": {
+    "completion_tokens": null,
+    "prompt_tokens": null,
+    "response_seconds": 72.812,
+    "total_tokens": null
+  },
+  "test_path": "compiledrepos/35897457/nxparser-model/src/test/java/org/semanticweb/yars/nx/LiteralTest.java",
+  "test_type": "gemini",
+  "track": "iterative_healing"
+}

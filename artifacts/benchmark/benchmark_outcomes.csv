@@ -61,3 +61,67 @@ case_0de800c69510b756,13899,regen,error,,,error,"FileNotFoundError: EvoSuite jar
 - symbol:   method assertEquals(java.lang.String,java.lang.String)
 - location: class org.adbcj.mysql.codec.IoUtilsTest",C:\Users\garre\Desktop\P2\New folder\Phase2_SWE_Testing\artifacts\benchmark\gemini_agentic\13899\regenerative\IoUtilsTest.json,2026-03-08T19:55:02Z,13899,gemini,zero-shot3,regenerative,compiledrepos/13899/mysql/codec/src/test/java/org/adbcj/mysql/codec/IoUtilsTest.java,1,,,,,,
 13899_IoUtilsTest,13899,agone_iterative_healing,ok,True,63.157,build_success,,C:\Users\garre\Desktop\P2\New folder\Phase2_SWE_Testing\artifacts\benchmark\gemini_agentic\13899\iterative_healing\IoUtilsTest.json,2026-03-08T19:56:31Z,13899,gemini,zero-shot3,iterative_healing,compiledrepos/13899/mysql/codec/src/test/java/org/adbcj/mysql/codec/IoUtilsTest.java,2,,,,,,
+35897457_LiteralTest,35897457,agone_regenerative,error,False,94.438,build_failed,"The following compilation errors were encountered during the Maven build:
+
+- 
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model/src/test/java/org/semanticweb/yars/nx/LiteralTest.java:[3,1] class, interface, or enum expected
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model/src/test/java/org/semanticweb/yars/nx/LiteralTest.java:[4,36] illegal character: '`'
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model/src/test/java/org/semanticweb/yars/nx/LiteralTest.java:[4,91] illegal character: '`'
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model/src/test/java/org/semanticweb/yars/nx/LiteralTest.java:[4,106] illegal character: '`'
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model/src/test/java/org/semanticweb/yars/nx/LiteralTest.java:[4,114] illegal character: '`'
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model/src/test/java/org/semanticweb/yars/nx/LiteralTest.java:[4,121] <identifier> expected
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model/src/test/java/org/semanticweb/yars/nx/LiteralTest.java:[4,136] ';' expected
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model/src/test/java/org/semanticweb/yars/nx/LiteralTest.java:[4,153] ';' expected
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model/src/test/java/org/semanticweb/yars/nx/LiteralTest.java:[4,172] ';' expected
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model/src/test/java/org/semanticweb/yars/nx/LiteralTest.java:[4,182] ';' expected
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model/src/test/java/org/semanticweb/yars/nx/LiteralTest.java:[4,187] <identifier> expected
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model/src/test/java/org/semanticweb/yars/nx/LiteralTest.java:[4,201] ';' expected
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model/src/test/java/org/semanticweb/yars/nx/LiteralTest.java:[4,217] reached end of file while parsing",C:\Users\garre\Desktop\P2\New folder\Phase2_SWE_Testing\artifacts\benchmark\gemini_agentic\35897457\regenerative\LiteralTest.json,2026-03-08T22:55:45Z,35897457,gemini,zero-shot3,regenerative,compiledrepos/35897457/nxparser-model/src/test/java/org/semanticweb/yars/nx/LiteralTest.java,1,,,,,,
+35897457_LiteralTest,35897457,agone_iterative_healing,ok,True,72.812,build_success,,C:\Users\garre\Desktop\P2\New folder\Phase2_SWE_Testing\artifacts\benchmark\gemini_agentic\35897457\iterative_healing\LiteralTest.json,2026-03-08T22:57:39Z,35897457,gemini,zero-shot3,iterative_healing,compiledrepos/35897457/nxparser-model/src/test/java/org/semanticweb/yars/nx/LiteralTest.java,3,,,,,,
+35897457_DatatypeFactoryTest,35897457,agone_regenerative,error,False,24.047,build_failed,"The following compilation errors were encountered during the Maven build:
+
+- 
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model-datatypes/src/test/java/org/semanticweb/yars/nx/dt/DatatypeFactoryTest.java:[3,1] class, interface, or enum expected
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model-datatypes/src/test/java/org/semanticweb/yars/nx/dt/DatatypeFactoryTest.java:[4,49] illegal character: '`'
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model-datatypes/src/test/java/org/semanticweb/yars/nx/dt/DatatypeFactoryTest.java:[4,74] illegal character: '`'
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model-datatypes/src/test/java/org/semanticweb/yars/nx/dt/DatatypeFactoryTest.java:[4,89] illegal character: '`'
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model-datatypes/src/test/java/org/semanticweb/yars/nx/dt/DatatypeFactoryTest.java:[4,105] illegal character: '`'
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model-datatypes/src/test/java/org/semanticweb/yars/nx/dt/DatatypeFactoryTest.java:[4,112] <identifier> expected
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model-datatypes/src/test/java/org/semanticweb/yars/nx/dt/DatatypeFactoryTest.java:[4,129] ';' expected
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model-datatypes/src/test/java/org/semanticweb/yars/nx/dt/DatatypeFactoryTest.java:[4,134] illegal character: '`'
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model-datatypes/src/test/java/org/semanticweb/yars/nx/dt/DatatypeFactoryTest.java:[4,135] invalid method declaration; return type required
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model-datatypes/src/test/java/org/semanticweb/yars/nx/dt/DatatypeFactoryTest.java:[4,171] illegal character: '`'
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model-datatypes/src/test/java/org/semanticweb/yars/nx/dt/DatatypeFactoryTest.java:[4,177] illegal character: '`'
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model-datatypes/src/test/java/org/semanticweb/yars/nx/dt/DatatypeFactoryTest.java:[4,200] illegal character: '`'
+- /C:/Users/garre/Desktop/P2/New folder/Phase2_SWE_Testing/compiledrepos/35897457/nxparser-model-datatypes/src/test/java/org/semanticweb/yars/nx/dt/DatatypeFactoryTest.java:[4,348] reached end of file while parsing",C:\Users\garre\Desktop\P2\New folder\Phase2_SWE_Testing\artifacts\benchmark\gemini_agentic\35897457\regenerative\DatatypeFactoryTest.json,2026-03-08T22:58:26Z,35897457,gemini,zero-shot3,regenerative,compiledrepos/35897457/nxparser-model-datatypes/src/test/java/org/semanticweb/yars/nx/dt/DatatypeFactoryTest.java,1,,,,,,
+35897457_DatatypeFactoryTest,35897457,agone_iterative_healing,error,False,133.938,iteration_limit_reached,"YOLO mode is enabled. All tool calls will be automatically approved.
+YOLO mode is enabled. All tool calls will be automatically approved.
+Error when talking to Gemini API Full report available at: C:\Users\garre\AppData\Local\Temp\gemini-client-error-Turn.run-sendMessageStream-2026-03-08T23-01-01-665Z.json TerminalQuotaError: You have exhausted your daily quota on this model.
+    at classifyGoogleError (file:///C:/Users/garre/AppData/Roaming/npm/node_modules/@google/gemini-cli/node_modules/@google/gemini-cli-core/dist/src/utils/googleQuotaErrors.js:206:24)
+    at retryWithBackoff (file:///C:/Users/garre/AppData/Roaming/npm/node_modules/@google/gemini-cli/node_modules/@google/gemini-cli-core/dist/src/utils/retry.js:153:37)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async GeminiChat.makeApiCallAndProcessStream (file:///C:/Users/garre/AppData/Roaming/npm/node_modules/@google/gemini-cli/node_modules/@google/gemini-cli-core/dist/src/core/geminiChat.js:445:32)
+    at async GeminiChat.streamWithRetries (file:///C:/Users/garre/AppData/Roaming/npm/node_modules/@google/gemini-cli/node_modules/@google/gemini-cli-core/dist/src/core/geminiChat.js:265:40)
+    at async Turn.run (file:///C:/Users/garre/AppData/Roaming/npm/node_modules/@google/gemini-cli/node_modules/@google/gemini-cli-core/dist/src/core/turn.js:70:30)
+    at async GeminiClient.processTurn (file:///C:/Users/garre/AppData/Roaming/npm/node_modules/@google/gemini-cli/node_modules/@google/gemini-cli-core/dist/src/core/client.js:477:26)
+    at async GeminiClient.sendMessageStream (file:///C:/Users/garre/AppData/Roaming/npm/node_modules/@google/gemini-cli/node_modules/@google/gemini-cli-core/dist/src/core/client.js:577:20)
+    at async file:///C:/Users/garre/AppData/Roaming/npm/node_modules/@google/gemini-cli/dist/src/nonInteractiveCli.js:194:34
+    at async main (file:///C:/Users/garre/AppData/Roaming/npm/node_modules/@google/gemini-cli/dist/src/gemini.js:531:9) {
+  cause: {
+    code: 429,
+    message: 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n' +
+      '* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\n' +
+      'Please retry in 241.310111ms.',
+    details: [ [Object], [Object], [Object] ]
+  },
+  retryDelayMs: undefined,
+  reason: undefined
+}
+{
+  ""session_id"": ""78bf055e-66e3-45d9-b62e-f76c0fe59434"",
+  ""error"": {
+    ""type"": ""Error"",
+    ""message"": ""[object Object]"",
+    ""code"": 1
+  }
+}",C:\Users\garre\Desktop\P2\New folder\Phase2_SWE_Testing\artifacts\benchmark\gemini_agentic\35897457\iterative_healing\DatatypeFactoryTest.json,2026-03-08T23:01:01Z,35897457,gemini,zero-shot3,iterative_healing,compiledrepos/35897457/nxparser-model-datatypes/src/test/java/org/semanticweb/yars/nx/dt/DatatypeFactoryTest.java,5,,,,,,

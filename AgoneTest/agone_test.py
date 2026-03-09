@@ -158,13 +158,18 @@ def generate_files(test_types, techniques, execution_override, correct, specific
 
         modules = project_info_data.get(project, {}).get('modules')
         if modules:
+            root_type_project = project_info_data.get(project, {}).get('type')
+            root_compiler_version = project_info_data.get(project, {}).get('version')
+            root_java_version = project_info_data.get(project, {}).get('java_version')
+            root_junit_version = project_info_data.get(project, {}).get('junit_version')
+            root_testng_version = project_info_data.get(project, {}).get('testng_version')
             for module in modules:
                 name = project + '_' + module
-                type_project = project_info_data.get(name, {}).get('type')
-                compiler_version = project_info_data.get(name, {}).get('version')
-                java_version = project_info_data.get(name, {}).get('java_version')
-                junit_version = project_info_data.get(name, {}).get('junit_version')
-                testng_version = project_info_data.get(name, {}).get('testng_version')
+                type_project = project_info_data.get(name, {}).get('type', root_type_project)
+                compiler_version = project_info_data.get(name, {}).get('version', root_compiler_version)
+                java_version = project_info_data.get(name, {}).get('java_version', root_java_version)
+                junit_version = project_info_data.get(name, {}).get('junit_version', root_junit_version)
+                testng_version = project_info_data.get(name, {}).get('testng_version', root_testng_version)
                 result_df_process_module = process_module(module, project, project_path, java_version, junit_version, testng_version, compiler_version, type_project, test_types, techniques, project_structure, project_dependencies)
                 if result_df_process_module is not None:
                     if generate_output_agone_files(output_agone_classes_path, result_df_process_module, all_test_types, all_techniques):
@@ -326,29 +331,27 @@ def check_class_has_all_compilation_test_types(java_class, test_types, technique
                 : True if the java focal class has been executed with all the given test types and techniques, False otherwise.
     """
     for test_type in test_types:
-            if test_type != 'human' and test_type != 'evosuite': # if AI test type
-                for technique in techniques:
-                    exists = ((output_agone_classes_df['ID_Focal_Class'] == java_class) & (output_agone_classes_df['Generator(LLM/EVOSUITE)'] == test_type) & (output_agone_classes_df['Prompt_Technique'] == technique)).any()
-                    if exists == False:
-                        return False   
-                    row = output_agone_classes_df[
-                        (output_agone_classes_df['ID_Focal_Class'] == java_class) & 
-                        (output_agone_classes_df['Generator(LLM/EVOSUITE)'] == test_type) & 
-                        (output_agone_classes_df['Prompt_Technique'] == technique)]
-                    if not row.empty:
-                        if row.iloc[0]['Compilation'] == 1 or row.iloc[0]['Compilation'] == '1':
-                            return True
-                    return False
-            else:
-                exists = ((output_agone_classes_df['ID_Focal_Class'] == java_class) & (output_agone_classes_df['Generator(LLM/EVOSUITE)'] == test_type)).any()
-                if exists == False:
-                    return False
+        if test_type != 'human' and test_type != 'evosuite':  # if AI test type
+            for technique in techniques:
                 row = output_agone_classes_df[
-                    (output_agone_classes_df['ID_Focal_Class'] == java_class) & 
-                    (output_agone_classes_df['Generator(LLM/EVOSUITE)'] == test_type)]
-                if not row.empty:
-                    if row.iloc[0]['Compilation'] == 1 or row.iloc[0]['Compilation'] == '1':
-                        return True
+                    (output_agone_classes_df['ID_Focal_Class'] == java_class) &
+                    (output_agone_classes_df['Generator(LLM/EVOSUITE)'] == test_type) &
+                    (output_agone_classes_df['Prompt_Technique'] == technique)
+                ]
+                if row.empty:
+                    return False
+                compilation_value = str(row.iloc[0]['Compilation']).strip()
+                if compilation_value not in {'1', '1.0'}:
+                    return False
+        else:
+            row = output_agone_classes_df[
+                (output_agone_classes_df['ID_Focal_Class'] == java_class) &
+                (output_agone_classes_df['Generator(LLM/EVOSUITE)'] == test_type)
+            ]
+            if row.empty:
+                return False
+            compilation_value = str(row.iloc[0]['Compilation']).strip()
+            if compilation_value not in {'1', '1.0'}:
                 return False
     return True
 
@@ -476,7 +479,7 @@ def generate_output_agone_mean_filtered(test_types, techniques):
             if percentage_method_coverage is None:
                 percentage_method_coverage = 'None'
             if percentage_mutation_coverage is None:
-                percentage_mutation_coverage = 'None'
+                percentage_mutation_coverage = '-'
             if test_smell_mean is None:
                 test_smell_mean = 'None'
             test_smell_mean = list(test_smell_mean.values())
@@ -502,7 +505,7 @@ def generate_output_agone_mean_filtered(test_types, techniques):
                     if percentage_method_coverage is None:
                         percentage_method_coverage = 'None'
                     if percentage_mutation_coverage is None:
-                        percentage_mutation_coverage = 'None'
+                        percentage_mutation_coverage = '-'
                     if test_smell_mean is None:
                         test_smell_mean = 'None'
                     test_smell_mean = list(test_smell_mean.values())
@@ -605,28 +608,16 @@ def calculate_compilation(test_type, technique, df):
     Returns:
                 percentage_compilation: the percentage of occurrences of '1' values in the compilation column of the dataframe. 'None' if there is no data in the dataframe.
     """
-    df_type = df[df['Generator(LLM/EVOSUITE)'] == test_type]
+    df_type = df[df['Generator(LLM/EVOSUITE)'] == test_type].copy()
     if technique is not None:
         df_type = df_type[df_type['Prompt_Technique'] == technique]
-    counts_type = df_type['Compilation'].value_counts()
-    # Convert counts to DataFrame
-    counts_type = pd.DataFrame(counts_type)
-    if counts_type.empty:
+
+    compilation_values = pd.to_numeric(df_type['Compilation'], errors='coerce').dropna()
+    if compilation_values.empty:
         return None
-    # Reset index to make 'Compilation' a column
-    counts_type.reset_index(inplace=True)
-    # Rename the columns
-    counts_type.columns = ['Compilation', 'Count']
-    # Calculate the total count of 'Compilation' values where it's either 1 or 0
-    total_count = counts_type['Count'].sum()
-    # Calculate the count for 'Compilation' value 1
-    if '1' in counts_type['Compilation'].values:
-        count_compilation_1 = counts_type[counts_type['Compilation'] == '1']['Count'].values[0]
-    elif 1 in counts_type['Compilation'].values:
-        count_compilation_1 = counts_type[counts_type['Compilation'] == 1]['Count'].values[0]
-    else:
-        count_compilation_1 = 0
-    # Calculate the percentage of 'Compilation' value 1
+
+    total_count = len(compilation_values)
+    count_compilation_1 = (compilation_values == 1).sum()
     percentage_compilation = round((count_compilation_1 / total_count) * 100, 2)
     return percentage_compilation
 

@@ -1,6 +1,4 @@
 ID_Focal_Class,Cyclomatic_Complexity_Focal_Class,Lines_Of_Code_Focal_Class,Generator(LLM/EVOSUITE),Prompt_Technique,Branch_Coverage,Line_Coverage,Method_Coverage,Compilation,Mutation_Coverage,NumberOfMethods,Assertion Roulette,Conditional Test Logic,Constructor Initialization,Default Test,EmptyTest,Exception Catching Throwing,General Fixture,Mystery Guest,Print Statement,Redundant Assertion,Sensitive Equality,Verbose Test,Sleepy Test,Eager Test,Lazy Test,Duplicate Assert,Unknown Test,IgnoredTest,Resource Optimism,Magic Number Test,Dependent Test,Chance
-13899_IoUtils,41,107,gemini,zero-shot3,0.0,0.0,0.0,1,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,2
-13899_IoUtils,41,107,human,-,0.0,0.0,0.0,1,33.33,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-
 35897457_Literal,32.0,46.0,human,-,75.0,76.09,62.5,1,75.0,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-
 35897457_DatatypeFactory,43.0,80.0,human,-,8.75,11.25,100.0,1,21.95,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-
 35897457_Util,7.0,23.0,human,-,37.5,60.87,66.67,1,42.86,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-
@@ -17,4 +15,3 @@ ID_Focal_Class,Cyclomatic_Complexity_Focal_Class,Lines_Of_Code_Focal_Class,Gener
 35897457_XsdBoolean,11.0,14.0,human,-,85.71,85.71,75.0,1,81.82,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-
 35897457_TurtleParser,7.0,23.0,human,-,0.0,30.43,40.0,1,0.0,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-
 35897457_RDFaParser,12.0,41.0,human,-,10.0,39.02,33.33,1,0.0,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-
-30008530_ZkCoordinator,74,227,human,-,53.06,68.72,92.0,1,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-

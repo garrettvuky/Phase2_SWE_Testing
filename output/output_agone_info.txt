@@ -1,15 +1,15 @@
 
 PROJECTS
-Total number of projects processed: 1
-Total number of projects processed with human: 1
+Total number of projects processed: 3
+Total number of projects processed with human: 3
 Total number of projects processed with gemini: 1
 Total number of projects processed with gemini zero-shot3: 1
 Total number of projects that have been processed with all the test types and techniques selected by the user: 1
 -------------------------------
 
 CLASSES
-Total number of classes processed: 1
-Total number of classes processed with human: 1
+Total number of classes processed: 18
+Total number of classes processed with human: 18
 Total number of classes processed with gemini: 1
 Total number of classes processed with gemini zero-shot3: 1
 Total number of classes that have been processed with all the test types and techniques selected by the user: 1

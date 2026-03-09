@@ -387,7 +387,7 @@ def edit_pom_file(path, project_dataframe, junit_version, testng_version):
     pitest_artifact_id = ET.SubElement(pitest_plugin, 'artifactId')
     pitest_artifact_id.text = 'pitest-maven'
     pitest_version = ET.SubElement(pitest_plugin, 'version')
-    pitest_version.text = '1.16.0'
+    pitest_version.text = '1.15.0'
 
 
 
@@ -434,6 +434,7 @@ def edit_pom_file(path, project_dataframe, junit_version, testng_version):
     pitest_feature2 = ET.SubElement(pitest_features, 'feature')
     pitest_feature2.text = '+auto_threads'
     pitest_target_tests = ET.SubElement(pitest_configuration, 'targetTests')
+    pitest_target_classes = ET.SubElement(pitest_configuration, 'targetClasses')
 
     try:
     # Add the target tests from project_df
@@ -445,6 +446,17 @@ def edit_pom_file(path, project_dataframe, junit_version, testng_version):
         return None
     for test in target_tests:
         ET.SubElement(pitest_target_tests, 'param').text = test
+
+    try:
+        target_classes = project_df['Focal_Path'].tolist()
+        target_classes = [
+            focal_path.split('main/java/')[1].replace('/', '.').replace('.java', '')
+            for focal_path in target_classes
+        ]
+    except Exception:
+        target_classes = []
+    for focal_class in target_classes:
+        ET.SubElement(pitest_target_classes, 'param').text = focal_class
 
     surefire_plugin = ET.SubElement(plugins, 'plugin')
     surefire_group_id = ET.SubElement(surefire_plugin, 'groupId')
@@ -528,21 +540,96 @@ def run_maven_test_command(path, project_dataframe, system):
         test_classes = project_df['Test_Path'].tolist()
         result = None
         # convert the test pathresult =  to the correct format cut after test/java/
-        test_classes = [test_path.split('test/java/')[1].replace('/', '.').replace('.java', '') for test_path in
-                        test_classes]
-        test_classes = ','.join(test_classes)
-        test_classes = f'-Dtest={test_classes}'
+        normalized_test_classes = []
+        for test_path in test_classes:
+            if 'test/java/' in test_path:
+                normalized_test_classes.append(
+                    test_path.split('test/java/')[1].replace('/', '.').replace('.java', '')
+                )
+        test_classes = normalized_test_classes
+        test_classes_arg = ','.join(test_classes)
+        test_classes = f'-Dtest={test_classes_arg}'
         print(f"Test classes: {test_classes}")
+        focal_classes = project_df['Focal_Path'].tolist()
+        normalized_focal_classes = []
+        for focal_path in focal_classes:
+            if 'main/java/' in focal_path:
+                normalized_focal_classes.append(
+                    focal_path.split('main/java/')[1].replace('/', '.').replace('.java', '')
+                )
+        focal_classes = normalized_focal_classes
+        focal_classes_arg = ','.join(focal_classes)
         subprocess.check_call(['java', '-version'])
         mvn_executable = 'mvn.cmd' if system == 'Windows' else 'mvn'
-        common_flags = [test_classes, '-Drat.skip=true', '-DfailIfNoTests=false', '-Dcheckstyle.skip=true']
+        common_flags = [
+            test_classes,
+            '-Drat.skip=true',
+            '-DfailIfNoTests=false',
+            '-Dsurefire.failIfNoSpecifiedTests=false',
+            '-Dmaven.javadoc.skip=true',
+            '-Dcheckstyle.skip=true',
+        ]
+        common_flags_no_test = [
+            '-Drat.skip=true',
+            '-DfailIfNoTests=false',
+            '-Dsurefire.failIfNoSpecifiedTests=false',
+            '-Dmaven.javadoc.skip=true',
+            '-Dcheckstyle.skip=true',
+        ]
+
+        # When running from a multi-module root, scope execution to involved modules and
+        # build their required dependencies. This avoids PIT traversing unrelated failing modules.
+        reactor_args = []
+        module_values = []
+        if 'Module' in project_df.columns:
+            module_values = (
+                project_df['Module']
+                .dropna()
+                .astype(str)
+                .str.strip()
+                .replace('-', '')
+                .tolist()
+            )
+        reactor_modules = []
+        for module_name in module_values:
+            if module_name and os.path.isdir(os.path.join(path, module_name)):
+                reactor_modules.append(module_name)
+        reactor_modules = list(dict.fromkeys(reactor_modules))
+        if reactor_modules:
+            reactor_declaration = set()
+            pom_file_path = os.path.join(path, 'pom.xml')
+            if os.path.isfile(pom_file_path):
+                try:
+                    pom_tree = ET.parse(pom_file_path)
+                    pom_root = pom_tree.getroot()
+                    ns = {'maven': 'http://maven.apache.org/POM/4.0.0'}
+                    for module_node in pom_root.findall('maven:modules/maven:module', ns):
+                        if module_node.text:
+                            reactor_declaration.add(module_node.text.strip())
+                    # Fallback for non-namespaced or mixed POMs.
+                    if not reactor_declaration:
+                        for module_node in pom_root.findall('.//modules/module'):
+                            if module_node.text:
+                                reactor_declaration.add(module_node.text.strip())
+                except Exception:
+                    reactor_declaration = set()
+            if reactor_declaration and all(module in reactor_declaration for module in reactor_modules):
+                reactor_args = ['-pl', ','.join(reactor_modules), '-am']
 
         subprocess.run([mvn_executable, 'license:format'], cwd=path, capture_output=True)
         subprocess.run([mvn_executable, 'spotless:apply'], cwd=path, capture_output=True)
 
         # Core pass/fail is based on compile/tests + JaCoCo generation.
         result = subprocess.run(
-            [mvn_executable, *common_flags, 'clean', 'verify', 'jacoco:prepare-agent', 'jacoco:report'],
+            [
+                mvn_executable,
+                *reactor_args,
+                *common_flags,
+                'clean',
+                'verify',
+                'org.jacoco:jacoco-maven-plugin:0.8.7:prepare-agent',
+                'org.jacoco:jacoco-maven-plugin:0.8.7:report',
+            ],
             cwd=path,
             capture_output=True,
             text=True,
@@ -555,10 +642,35 @@ def run_maven_test_command(path, project_dataframe, system):
             print("\n--------------------")
             return False, errori
 
+        # PIT runs in a separate Maven invocation; install reactor artifacts first so
+        # module-local dependencies are resolvable during mutation analysis.
+        install_result = subprocess.run(
+            [mvn_executable, *reactor_args, *common_flags_no_test, '-DskipTests', 'install'],
+            cwd=path,
+            capture_output=True,
+            text=True,
+        )
+        if not install_result.stdout.__contains__('BUILD SUCCESS'):
+            print("[WARN] Maven install step failed before PIT; PIT may not resolve module dependencies.")
+
         # PIT can fail on some legacy projects/JDK combos; keep pipeline running and
         # record mutation coverage as unavailable when this happens.
         pit_result = subprocess.run(
-            [mvn_executable, *common_flags, 'org.pitest:pitest-maven:mutationCoverage'],
+            [
+                mvn_executable,
+                *reactor_args,
+                *common_flags_no_test,
+                'org.pitest:pitest-maven:1.15.0:mutationCoverage',
+                f'-DtargetTests={test_classes_arg}',
+                f'-DtargetClasses={focal_classes_arg}',
+                '-DoutputFormats=CSV',
+                '-DtimestampedReports=false',
+                '-DfailWhenNoMutations=false',
+                '-Dthreads=1',
+                '-DtimeoutFactor=2',
+                '-DuseClasspathJar=true',
+                '-DjvmArgs=-Xmx1024m',
+            ],
             cwd=path,
             capture_output=True,
             text=True,

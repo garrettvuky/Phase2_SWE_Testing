@@ -3,6 +3,7 @@ import pandas as pd
 import subprocess
 import shutil
 import re
+import glob
 import xml.etree.ElementTree as ET
 import ctypes
 import copy
@@ -267,8 +268,78 @@ def retrieve_code_coverage_and_cyclomatic_complexity(project_path, project_dataf
     else:
         modules = [module]
         
-    jacoco_df_all = None
+    jacoco_df_all = pd.DataFrame()
     pitest_df_all = pd.DataFrame(columns=['Focal_Class', 'Mutation_Coverage'])
+
+    def extract_simple_class_name(value):
+        value = str(value).strip()
+        if not value or value == 'nan':
+            return None
+        if value.endswith('.java'):
+            value = os.path.basename(value).replace('.java', '')
+        elif '.' in value:
+            value = value.split('.')[-1]
+        return value
+
+    def load_pitest_mutation_rows(module_path, build_type):
+        csv_reports = []
+        xml_reports = []
+
+        if build_type == 'Maven':
+            candidate_roots = [
+                os.path.join(module_path, 'target', 'pit-reports'),
+                os.path.join(module_path, 'target', 'site', 'pit-reports'),
+            ]
+        else:
+            candidate_roots = [
+                os.path.join(module_path, 'build', 'reports', 'pitest'),
+                os.path.join(module_path, 'build', 'pit-reports'),
+            ]
+
+        for root_dir in candidate_roots:
+            if os.path.isdir(root_dir):
+                csv_reports.extend(glob.glob(os.path.join(root_dir, '**', 'mutations.csv'), recursive=True))
+                xml_reports.extend(glob.glob(os.path.join(root_dir, '**', 'mutations.xml'), recursive=True))
+
+        mutation_rows = []
+
+        for csv_report in csv_reports:
+            try:
+                csv_df = pd.read_csv(csv_report, header=None, on_bad_lines='skip')
+                if csv_df is None or csv_df.empty or csv_df.shape[1] < 6:
+                    continue
+                for _, csv_row in csv_df.iterrows():
+                    focal_class = None
+                    if csv_df.shape[1] > 0:
+                        focal_class = extract_simple_class_name(csv_row.iloc[0])
+                    if not focal_class and csv_df.shape[1] > 1:
+                        focal_class = extract_simple_class_name(csv_row.iloc[1])
+                    if not focal_class:
+                        continue
+                    result_value = str(csv_row.iloc[5]).strip() if csv_df.shape[1] > 5 else ''
+                    mutation_rows.append((focal_class, result_value))
+            except Exception:
+                continue
+
+        for xml_report in xml_reports:
+            try:
+                xml_tree = ET.parse(xml_report)
+                xml_root = xml_tree.getroot()
+                for mutation in xml_root.findall('.//mutation'):
+                    status = mutation.attrib.get('status', '').strip()
+                    source_file = mutation.findtext('sourceFile')
+                    mutated_class = mutation.findtext('mutatedClass')
+                    focal_class = extract_simple_class_name(source_file) or extract_simple_class_name(mutated_class)
+                    if focal_class:
+                        mutation_rows.append((focal_class, status))
+            except Exception:
+                continue
+
+        if not mutation_rows:
+            return None
+
+        mutation_df = pd.DataFrame(mutation_rows, columns=['Focal_Class', 'Result'])
+        return mutation_df
     # For each module, retrieve the .csv files and read them to obtain the results from JaCoCo and PITest. All the results are then merged into a single DataFrame.
     for module in modules:
         jacoco_df = None
@@ -295,20 +366,12 @@ def retrieve_code_coverage_and_cyclomatic_complexity(project_path, project_dataf
         if jacoco_df is None:
             return None
 
-        if pitest_df is not None:
-            pitest_df[0] = pitest_df[0].str.replace('.java', '')
-            pitest_df.columns = ['Focal_Class', 'Package', 'Mutation_Name', 'Method_Name', 'Line_Number', 'Result', 'Killing_test']
-            # Each row of the pitest_df DataFrame represents a mutation
-            # Focal_Class: the name of the focal class without the .java extension
-            # Package: the package of the focal class
-            # Mutation_Name: the name of the engine used for the mutation
-            # Method_Signature: the name of the method involved in the mutation
-            # Line_Number: the number of the line of code involved in the mutation
-            # Killing_Test: the test that ultimately killed the mutation
-            pitest_df = pitest_df.groupby('Focal_Class').agg(
-                {'Result': lambda x: round((x == 'KILLED').sum() / len(x) * 100, 2)})
-            pitest_df = pitest_df.rename(columns={'Result': 'Mutation_Coverage'})
-            pitest_df = pitest_df.reset_index()
+        mutation_rows_df = load_pitest_mutation_rows(path, type_project)
+        if mutation_rows_df is not None and not mutation_rows_df.empty:
+            pitest_df = mutation_rows_df.groupby('Focal_Class').agg(
+                {'Result': lambda x: round((x == 'KILLED').sum() / len(x) * 100, 2)}
+            )
+            pitest_df = pitest_df.rename(columns={'Result': 'Mutation_Coverage'}).reset_index()
             pitest_df_all = pd.concat([pitest_df_all, pitest_df], ignore_index=True)
 
         jacoco_df = jacoco_df.rename(columns={'CLASS': 'Focal_Class'})
